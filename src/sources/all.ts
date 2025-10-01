@@ -19,7 +19,7 @@ import { mangaHereScraper } from "./mangahere";
 import { mangaPandaScraper } from "./mangapanda";
 import { mangaTownScraper } from "./mangatown";
 import { mangaKatanaScraper } from "./mangakatana";
-import { comicKScraper } from "./comick";
+// import { comicKScraper } from "./comick";
 import { weebCentralScraper } from "./weebcentral";
 import { mangaHavenScraper } from "./mangahaven";
 import { mangaReaderScraper } from "./mangareader";
@@ -50,7 +50,7 @@ export function gatherAllSources(): Source[] {
         mangaPandaScraper,
         mangaTownScraper,
         mangaKatanaScraper,
-        comicKScraper,
+        // comicKScraper,
         weebCentralScraper,
         mangaHavenScraper,
         mangaReaderScraper,

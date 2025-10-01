@@ -152,6 +152,7 @@ export const comicKScraper: Source = {
     id: 'comick',
     name: 'ComicK',
     url: baseUrl,
+    disabled: true,
     rank: 21,
     flags: [flags.CORS_ALLOWED],
     scrapeMangas: fetchMangas,
