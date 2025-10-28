@@ -109,13 +109,13 @@ function setupUI(sourceControls: SourceControls, proxyUrl = 'http://localhost:30
     pagesDiv.innerHTML = '';
 
     try {
-      const manga = await sourceControls.runSourceForManga({ sourceId, titleInput: title });
-      if (!manga.length) {
+      const mangaList = await sourceControls.runSourceForManga({ sourceId, titleInput: title });
+      if (!mangaList.length) {
         outputDiv.innerHTML = 'No manga found.';
         return;
       }
 
-      outputDiv.innerHTML = renderManga(manga);
+      outputDiv.innerHTML = renderManga(mangaList);
 
       const source = sources.find(s => s.id === sourceId);
       // Keep this to check if source flags need proxy or referer (if you want to use them still)
@@ -126,7 +126,7 @@ function setupUI(sourceControls: SourceControls, proxyUrl = 'http://localhost:30
         mangaLink.addEventListener('click', async e => {
           e.preventDefault();
           const mIdx = +mangaLink.getAttribute('data-manga-idx')!;
-          const manga = manga[mIdx];
+          const manga = mangaList[mIdx];
 
           outputDiv.innerHTML = 'Loading chapters...';
           try {
