@@ -1,5 +1,5 @@
 import { flags } from "@/entrypoint/targets";
-import type { Source, SourceChaptersOutput, SourceMangasOutput, SourcePagesOutput } from "./base";
+import type { Source, SourceChaptersOutput, SourceMangaOutput, SourcePagesOutput } from "./base";
 import type { ChapterContext, MangaContext, SearchContext } from "@/utils/context";
 import type { Chapter, Manga, Page } from "@/utils/types";
 import * as cheerio from 'cheerio';
@@ -12,8 +12,8 @@ type ApiResponse = {
     html: string;
 }
 
-async function fetchMangas(ctx: SearchContext): Promise<SourceMangasOutput> {
-    const mangas: Manga[] = [];
+async function fetchManga(ctx: SearchContext): Promise<SourceMangaOutput> {
+    const manga: Manga[] = [];
     const response: ApiResponse = await ctx.proxiedFetcher(baseUrl + '/ajax/manga/search/suggest', {
         query: {
             keyword: ctx.titleInput
@@ -29,14 +29,14 @@ async function fetchMangas(ctx: SearchContext): Promise<SourceMangasOutput> {
         const img = $(el).find('img.manga-poster-img').attr('src');
         const title = $(el).find('h3.manga-name').text().trim();
 
-        mangas.push({
+        manga.push({
             sourceId: 'mangareader',
             title: title,
             coverUrl: img,
             url: baseUrl + href
         });
     });
-    return mangas;
+    return manga;
 }
 
 async function fetchChapters(ctx: MangaContext): Promise<SourceChaptersOutput> {
@@ -101,7 +101,7 @@ export const mangaReaderScraper: Source = {
     url: baseUrl,
     rank: 24,
     flags: [flags.CORS_ALLOWED],
-    scrapeMangas: fetchMangas,
+    scrapeManga: fetchManga,
     scrapeChapters: fetchChapters,
     scrapePages: fetchPages,
 }

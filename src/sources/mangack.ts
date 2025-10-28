@@ -1,13 +1,13 @@
 import * as cheerio from 'cheerio';
 import type { Chapter, Page } from '@/utils/types';
 import type { MangaContext, ChapterContext, SearchContext } from '@/utils/context';
-import type { SourceChaptersOutput, SourceMangasOutput, SourcePagesOutput } from './base';
+import type { SourceChaptersOutput, SourceMangaOutput, SourcePagesOutput } from './base';
 import type { Source } from '@/sources/base';
 import { flags } from '@/entrypoint/targets';
 
 const baseUrl = "https://mangack.com";
 
-async function fetchMangas(ctx: SearchContext): Promise<SourceMangasOutput> {
+async function fetchManga(ctx: SearchContext): Promise<SourceMangaOutput> {
     const response = await ctx.proxiedFetcher(baseUrl, {
         query: {
             s: encodeURIComponent(ctx.titleInput).replace(/%20/g, '+')
@@ -15,7 +15,7 @@ async function fetchMangas(ctx: SearchContext): Promise<SourceMangasOutput> {
     });
     const $ = cheerio.load(response);
 
-    const mangas: SourceMangasOutput = [];
+    const manga: SourceMangaOutput = [];
 
     for (const div of $('.Latest_chapter_update').toArray()) {
         const $div = $(div);
@@ -31,7 +31,7 @@ async function fetchMangas(ctx: SearchContext): Promise<SourceMangasOutput> {
 
         if (!id || !title || !url) continue;
 
-        mangas.push({
+        manga.push({
             id,
             title,
             url,
@@ -40,7 +40,7 @@ async function fetchMangas(ctx: SearchContext): Promise<SourceMangasOutput> {
         });
     }
 
-    return mangas;
+    return manga;
 }
 
 
@@ -103,7 +103,7 @@ export const mangackScraper: Source = {
     url: baseUrl,
     rank: 8,
     flags: [flags.CORS_ALLOWED],
-    scrapeMangas: fetchMangas,
+    scrapeManga: fetchManga,
     scrapeChapters: fetchChapters,
     scrapePages: fetchPages
 };

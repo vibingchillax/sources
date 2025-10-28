@@ -1,5 +1,5 @@
 import { flags } from "@/entrypoint/targets"
-import type { Source, SourceChaptersOutput, SourceMangasOutput, SourcePagesOutput } from "./base"
+import type { Source, SourceChaptersOutput, SourceMangaOutput, SourcePagesOutput } from "./base"
 import type { ChapterContext, MangaContext, SearchContext } from "@/utils/context"
 import type { Chapter, Manga, Page } from "@/utils/types"
 
@@ -32,8 +32,8 @@ type ChapterResponse = {
     title: string;
 }[]
 
-async function fetchMangas(ctx: SearchContext): Promise<SourceMangasOutput> {
-    const mangas: Manga[] = [];
+async function fetchManga(ctx: SearchContext): Promise<SourceMangaOutput> {
+    const mangaList: Manga[] = [];
     const response: MangaResponse = await ctx.proxiedFetcher(baseUrl + '/filter', {
         query: {
             keyword: ctx.titleInput,
@@ -41,7 +41,7 @@ async function fetchMangas(ctx: SearchContext): Promise<SourceMangasOutput> {
         }
     })
     for (const manga of response) {
-        mangas.push({
+        mangaList.push({
             id: manga.id,
             sourceId: 'mangahaven',
             title: manga.title,
@@ -49,7 +49,7 @@ async function fetchMangas(ctx: SearchContext): Promise<SourceMangasOutput> {
             url: baseUrl + `/chapters-with-ids/${manga.id}`
         })
     }
-    return mangas
+    return mangaList
 }
 
 
@@ -86,7 +86,7 @@ export const mangaHavenScraper: Source = {
     url: baseUrl,
     rank: 23,
     flags: [flags.CORS_ALLOWED],
-    scrapeMangas: fetchMangas,
+    scrapeManga: fetchManga,
     scrapeChapters: fetchChapters,
     scrapePages: fetchPages
 }

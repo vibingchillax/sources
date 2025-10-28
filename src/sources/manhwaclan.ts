@@ -1,7 +1,7 @@
 import * as cheerio from 'cheerio';
 import type { Chapter, Manga, Page } from '@/utils/types';
 import type { MangaContext, ChapterContext, SearchContext } from '@/utils/context';
-import type { SourceChaptersOutput, SourceMangasOutput, SourcePagesOutput } from './base';
+import type { SourceChaptersOutput, SourceMangaOutput, SourcePagesOutput } from './base';
 import type { Source } from '@/sources/base';
 import { flags } from '@/entrypoint/targets';
 import { NotFoundError } from '@/utils/errors';
@@ -19,8 +19,8 @@ interface SearchResponse {
     data: MangaItem[]
 }
 
-async function fetchMangas(ctx: SearchContext): Promise<SourceMangasOutput> {
-    const mangas: Manga[] = [];
+async function fetchManga(ctx: SearchContext): Promise<SourceMangaOutput> {
+    const manga: Manga[] = [];
     const formData = new FormData();
     formData.append('action', 'wp-manga-search-manga');
     formData.append('title', ctx.titleInput);
@@ -35,13 +35,13 @@ async function fetchMangas(ctx: SearchContext): Promise<SourceMangasOutput> {
     })
     if (!response.success) throw new NotFoundError(`[ManhwaClan] error while connecting to api`);
     for (const item of response.data) {
-        mangas.push({
+        manga.push({
             title: item.title,
             url: item.url,
             sourceId: 'manhwaclan',
         })
     }
-    return mangas;
+    return manga;
 }
 
 async function fetchChapters(ctx: MangaContext): Promise<SourceChaptersOutput> {
@@ -121,7 +121,7 @@ export const manhwaClanScraper: Source = {
     url: baseUrl,
     rank: 29,
     flags: [flags.CORS_ALLOWED],
-    scrapeMangas: fetchMangas,
+    scrapeManga: fetchManga,
     scrapeChapters: fetchChapters,
     scrapePages: fetchPages
 };

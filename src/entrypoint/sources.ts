@@ -1,11 +1,11 @@
 import type { Fetcher } from '@/fetchers/types';
 import { flagsAllowedInFeatures, getTargetFeatures, type FeatureMap, type Targets } from '@/entrypoint/targets';
 import { gatherAllSources } from '@/sources/all';
-import type { Source, SourceChaptersOutput, SourceMangasOutput, SourcePagesOutput } from '@/sources/base';
+import type { Source, SourceChaptersOutput, SourceMangaOutput, SourcePagesOutput } from '@/sources/base';
 import { hasDuplicates } from '@/utils/predicates';
 import type { Chapter, Manga } from '@/utils/types';
 import { makeFetcher } from '@/fetchers/common';
-import { runAllSourcesForMangas, runSourceForChapters, runSourceForMangas, runSourceForPages } from '@/runner/runner';
+import { runAllSourcesForManga, runSourceForChapters, runSourceForManga, runSourceForPages } from '@/runner/runner';
 
 export interface SourceMakerInput {
     fetcher: Fetcher,
@@ -31,10 +31,10 @@ export interface PageRunnerOptions {
 }
 
 export interface SourceControls {
-    // fetch lists of mangas from all sources
-    runAllForMangas(runnerOps: MangaRunAllRunnerOptions): Promise<Record<string, SourceMangasOutput>>;
-    // fetch a list of mangas from a specific source
-    runSourceForMangas(runnerOps: MangaRunnerOptions): Promise<SourceMangasOutput>;
+    // fetch lists of manga from all sources
+    runAllForManga(runnerOps: MangaRunAllRunnerOptions): Promise<Record<string, SourceMangaOutput>>;
+    // fetch a list of manga from a specific source
+    runSourceForManga(runnerOps: MangaRunnerOptions): Promise<SourceMangaOutput>;
     // fetch chapters of a manga (source origin included)
     runSourceForChapters(runnerOps: ChapterRunnerOptions): Promise<SourceChaptersOutput>;
     // fetch pages of a chapter (source origin included)
@@ -64,15 +64,15 @@ export function makeSources(ops: SourceMakerInput): SourceControls {
         features: features,
     }
     return {
-        runAllForMangas(runnerOps) {
-            return runAllSourcesForMangas(list, {
+        runAllForManga(runnerOps) {
+            return runAllSourcesForManga(list, {
                 ...fetcherOps,
                 ...runnerOps,
             });
         },
 
-        runSourceForMangas(runnerOps) {
-            return runSourceForMangas(list, {
+        runSourceForManga(runnerOps) {
+            return runSourceForManga(list, {
                 ...fetcherOps,
                 ...runnerOps,
             });

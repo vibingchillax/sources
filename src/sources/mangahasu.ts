@@ -1,16 +1,16 @@
 import { flags } from "@/entrypoint/targets"
-import type { Source, SourceChaptersOutput, SourceMangasOutput, SourcePagesOutput } from "./base"
+import type { Source, SourceChaptersOutput, SourceMangaOutput, SourcePagesOutput } from "./base"
 import type { ChapterContext, MangaContext, SearchContext } from "@/utils/context"
 import * as cheerio from 'cheerio'
 import type { Chapter, Manga, Page } from "@/utils/types"
 
 const baseUrl = 'https://mangahasu.me'
 
-async function fetchMangas(ctx: SearchContext): Promise<SourceMangasOutput> {
+async function fetchManga(ctx: SearchContext): Promise<SourceMangaOutput> {
     const url = baseUrl + '/advanced-search.html?keyword=' + ctx.titleInput;
     const response = await ctx.proxiedFetcher(url);
     const $ = cheerio.load(response);
-    const mangas: Manga[] = [];
+    const manga: Manga[] = [];
 
     $("ul.list_manga > li").each((_, li) => {
         const el = $(li);
@@ -23,7 +23,7 @@ async function fetchMangas(ctx: SearchContext): Promise<SourceMangasOutput> {
         const coverUrl = el.find(".wrapper_imgage a > img").attr("src");
 
         if (title && url) {
-            mangas.push({
+            manga.push({
                 sourceId: 'mangahasu',
                 title,
                 url,
@@ -32,7 +32,7 @@ async function fetchMangas(ctx: SearchContext): Promise<SourceMangasOutput> {
         }
     });
 
-    return mangas;
+    return manga;
 }
 
 async function fetchChapters(ctx: MangaContext): Promise<SourceChaptersOutput> {
@@ -101,7 +101,7 @@ export const mangaHasuScraper: Source = {
     url: baseUrl,
     rank: 27,
     flags: [flags.CORS_ALLOWED, flags.NEEDS_REFERER_HEADER],
-    scrapeMangas: fetchMangas,
+    scrapeManga: fetchManga,
     scrapeChapters: fetchChapters,
     scrapePages: fetchPages,
 }

@@ -1,7 +1,7 @@
 import * as cheerio from 'cheerio';
 import type { Chapter, Manga, Page } from '@/utils/types';
 import type { MangaContext, ChapterContext, SearchContext } from '@/utils/context';
-import type { SourceChaptersOutput, SourceMangasOutput, SourcePagesOutput } from './base';
+import type { SourceChaptersOutput, SourceMangaOutput, SourcePagesOutput } from './base';
 import type { Source } from '@/sources/base';
 import { flags } from '@/entrypoint/targets';
 
@@ -22,7 +22,7 @@ export type RawMangaResponseItem = {
 
 export type RawMangaResponse = RawMangaResponseItem[];
 
-async function fetchMangas(ctx: SearchContext): Promise<SourceMangasOutput> {
+async function fetchManga(ctx: SearchContext): Promise<SourceMangaOutput> {
     const url = `${baseUrl}/wp-json/manga/v1/search`;
     const response = await ctx.proxiedFetcher(url, {
         query: {
@@ -32,7 +32,7 @@ async function fetchMangas(ctx: SearchContext): Promise<SourceMangasOutput> {
     })
     const data: RawMangaResponse = response;
 
-    const mangas: Manga[] = data.map((item) => ({
+    const manga: Manga[] = data.map((item) => ({
         id: item.id,
         sourceId: 'mangataro',
         title: item.title,
@@ -49,7 +49,7 @@ async function fetchMangas(ctx: SearchContext): Promise<SourceMangasOutput> {
         url: item.permalink,
     }));
 
-    return mangas
+    return manga
 }
 
 async function fetchChapters(ctx: MangaContext): Promise<SourceChaptersOutput> {
@@ -112,7 +112,7 @@ export const mangaTaroScraper: Source = {
     url: baseUrl,
     rank: 9,
     flags: [flags.CORS_ALLOWED],
-    scrapeMangas: fetchMangas,
+    scrapeManga: fetchManga,
     scrapeChapters: fetchChapters,
     scrapePages: fetchPages
 };

@@ -1,15 +1,15 @@
 import * as cheerio from 'cheerio';
 import type { Chapter, Manga, Page } from '@/utils/types';
 import type { MangaContext, ChapterContext, SearchContext } from '@/utils/context';
-import type { Source, SourceChaptersOutput, SourceMangasOutput, SourcePagesOutput } from '@/sources/base';
+import type { Source, SourceChaptersOutput, SourceMangaOutput, SourcePagesOutput } from '@/sources/base';
 import { Element } from 'domhandler';
 import { flags } from '@/entrypoint/targets';
 import { chapterFun, extractDm5KeyFromPacked, extractVarFromScript } from '@/utils/chapterfunashx';
 
 const baseUrl = "https://fanfox.net";
 
-function parseMangas($: cheerio.CheerioAPI): Manga[] {
-    const mangas: Manga[] = [];
+function parseManga($: cheerio.CheerioAPI): Manga[] {
+    const manga: Manga[] = [];
     $('ul.manga-list-4-list > li').each((_, el) => {
         const $el = $(el);
 
@@ -48,7 +48,7 @@ function parseMangas($: cheerio.CheerioAPI): Manga[] {
             }
         }
 
-        mangas.push({
+        manga.push({
             sourceId: 'fanfox',
             title,
             url,
@@ -60,7 +60,7 @@ function parseMangas($: cheerio.CheerioAPI): Manga[] {
         });
     });
 
-    return mangas;
+    return manga;
 }
 
 function parseChapters($: cheerio.CheerioAPI): Chapter[] {
@@ -97,7 +97,7 @@ function parseChapters($: cheerio.CheerioAPI): Chapter[] {
     });
 }
 
-async function fetchMangas(ctx: SearchContext): Promise<SourceMangasOutput> {
+async function fetchManga(ctx: SearchContext): Promise<SourceMangaOutput> {
     const url = `${baseUrl}/search`;
     const response = await ctx.proxiedFetcher(url, {
         query: {
@@ -105,8 +105,8 @@ async function fetchMangas(ctx: SearchContext): Promise<SourceMangasOutput> {
         }
     });
     const $ = cheerio.load(response);
-    const mangas = parseMangas($);
-    return mangas;
+    const manga = parseManga($);
+    return manga;
 }
 
 async function fetchChapters(ctx: MangaContext): Promise<SourceChaptersOutput> {
@@ -151,7 +151,7 @@ export const fanFoxScraper: Source = {
     url: baseUrl,
     rank: 16,
     flags: [flags.CORS_ALLOWED, flags.NEEDS_REFERER_HEADER],
-    scrapeMangas: fetchMangas,
+    scrapeManga: fetchManga,
     scrapeChapters: fetchChapters,
     scrapePages: fetchPages
 };

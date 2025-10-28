@@ -1,7 +1,7 @@
 import * as cheerio from 'cheerio';
 import type { Chapter, Manga, Page } from '@/utils/types';
 import type { MangaContext, ChapterContext, SearchContext } from '@/utils/context';
-import type { SourceChaptersOutput, SourceMangasOutput, SourcePagesOutput } from './base';
+import type { SourceChaptersOutput, SourceMangaOutput, SourcePagesOutput } from './base';
 import type { Source } from '@/sources/base';
 import { flags } from '@/entrypoint/targets';
 
@@ -9,8 +9,8 @@ const baseUrl = "https://manhuabuddy.com"
 
 
 //literally the same as mangaoi
-async function fetchMangas(ctx: SearchContext): Promise<SourceMangasOutput> {
-    const mangas: Manga[] = [];
+async function fetchManga(ctx: SearchContext): Promise<SourceMangaOutput> {
+    const manga: Manga[] = [];
     const searchUrl = `${baseUrl}/search/`;
     const searchHtml = await ctx.proxiedFetcher(searchUrl, {
         query: {
@@ -33,7 +33,7 @@ async function fetchMangas(ctx: SearchContext): Promise<SourceMangasOutput> {
 
     //     const title = img.attr('alt')?.trim() || element.contents().first().text().trim();
 
-    //     mangas.push({
+    //     manga.push({
     //         sourceId: 'manhuabuddy',
     //         title,
     //         coverUrl,
@@ -50,7 +50,7 @@ async function fetchMangas(ctx: SearchContext): Promise<SourceMangasOutput> {
 
         const coverUrl = linkEl.find('img').attr('src') || undefined;
 
-        mangas.push({
+        manga.push({
             sourceId: 'manhuabuddy',
             title,
             url: realUrl,
@@ -59,7 +59,7 @@ async function fetchMangas(ctx: SearchContext): Promise<SourceMangasOutput> {
     });
 
 
-    return mangas;
+    return manga;
 }
 
 async function fetchChapters(ctx: MangaContext): Promise<SourceChaptersOutput> {
@@ -123,7 +123,7 @@ export const manhuaBuddyScraper: Source = {
     url: baseUrl,
     rank: 3,
     flags: [flags.CORS_ALLOWED],
-    scrapeMangas: fetchMangas,
+    scrapeManga: fetchManga,
     scrapeChapters: fetchChapters,
     scrapePages: fetchPages
 };

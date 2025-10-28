@@ -1,5 +1,5 @@
 import { flags } from "@/entrypoint/targets";
-import type { Source, SourceChaptersOutput, SourceMangasOutput, SourcePagesOutput } from "./base";
+import type { Source, SourceChaptersOutput, SourceMangaOutput, SourcePagesOutput } from "./base";
 import type { ChapterContext, MangaContext, SearchContext } from "@/utils/context";
 import type { Chapter, Manga, Page } from "@/utils/types";
 
@@ -35,12 +35,12 @@ type PagesResponse = {
     }
 }
 
-async function fetchMangas(ctx: SearchContext): Promise<SourceMangasOutput> {
+async function fetchManga(ctx: SearchContext): Promise<SourceMangaOutput> {
     const url = baseUrl + '/api/search/page?query=' + ctx.titleInput
     const response: SearchResponse = await ctx.proxiedFetcher(url);
-    const mangas: Manga[] = [];
+    const mangaList: Manga[] = [];
     for (const manga of response.hits) {
-        mangas.push({
+        mangaList.push({
             id: manga.id,
             sourceId: 'atsumoe',
             title: manga.title,
@@ -48,7 +48,7 @@ async function fetchMangas(ctx: SearchContext): Promise<SourceMangasOutput> {
             url: manga.id
         })
     }
-    return mangas
+    return mangaList
 
 }
 
@@ -86,7 +86,7 @@ export const atsuMoeScraper: Source = {
     url: baseUrl,
     rank: 26,
     flags: [flags.CORS_ALLOWED, flags.NEEDS_REFERER_HEADER],
-    scrapeMangas: fetchMangas,
+    scrapeManga: fetchManga,
     scrapeChapters: fetchChapters,
     scrapePages: fetchPages,
 }

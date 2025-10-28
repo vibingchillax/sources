@@ -1,13 +1,13 @@
 import * as cheerio from 'cheerio';
 import type { Chapter, Manga, Page } from '@/utils/types';
 import type { MangaContext, ChapterContext, SearchContext } from '@/utils/context';
-import type { SourceChaptersOutput, SourceMangasOutput, SourcePagesOutput } from './base';
+import type { SourceChaptersOutput, SourceMangaOutput, SourcePagesOutput } from './base';
 import type { Source } from '@/sources/base';
 import { flags } from '@/entrypoint/targets';
 
 const baseUrl = "https://readmanga.cc";
 
-async function fetchMangas(ctx: SearchContext): Promise<SourceMangasOutput> {
+async function fetchManga(ctx: SearchContext): Promise<SourceMangaOutput> {
     const url = `${baseUrl}/browse`;
     const response = await ctx.proxiedFetcher(url, {
         query: {
@@ -15,7 +15,7 @@ async function fetchMangas(ctx: SearchContext): Promise<SourceMangasOutput> {
         }
     })
     const $ = cheerio.load(response);
-    const mangas: Manga[] = [];
+    const manga: Manga[] = [];
 
     $('div.max-w.block').each((_, el) => {
         const $el = $(el);
@@ -52,7 +52,7 @@ async function fetchMangas(ctx: SearchContext): Promise<SourceMangasOutput> {
 
         const description = linkEl.find('p.line-clamp-5').text().trim() || undefined;
 
-        mangas.push({
+        manga.push({
             sourceId: 'readmanga',
             title,
             altTitles: altTitles
@@ -66,7 +66,7 @@ async function fetchMangas(ctx: SearchContext): Promise<SourceMangasOutput> {
             url,
         });
     });
-    return mangas
+    return manga
 }
 
 async function fetchChapters(ctx: MangaContext): Promise<SourceChaptersOutput> {
@@ -134,7 +134,7 @@ export const readmangaScraper: Source = {
     url: baseUrl,
     rank: 5,
     flags: [flags.CORS_ALLOWED],
-    scrapeMangas: fetchMangas,
+    scrapeManga: fetchManga,
     scrapeChapters: fetchChapters,
     scrapePages: fetchPages
 };

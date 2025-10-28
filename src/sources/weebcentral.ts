@@ -1,14 +1,14 @@
 import type { ChapterContext, MangaContext, SearchContext } from "@/utils/context";
-import type { Source, SourceChaptersOutput, SourceMangasOutput, SourcePagesOutput } from "./base";
+import type { Source, SourceChaptersOutput, SourceMangaOutput, SourcePagesOutput } from "./base";
 import { flags } from "@/entrypoint/targets";
 import type { Chapter, Manga, Page } from "@/utils/types";
 import * as cheerio from 'cheerio';
 
 const baseUrl = 'https://weebcentral.com'
 
-function parseMangas(html: string): Manga[] {
+function parseManga(html: string): Manga[] {
     const $ = cheerio.load(html);
-    const mangas: Manga[] = [];
+    const manga: Manga[] = [];
 
     $('article.bg-base-300').each((_, el) => {
         const root = $(el);
@@ -50,7 +50,7 @@ function parseMangas(html: string): Manga[] {
 
         const coverUrl = root.find('section:first-child a article picture img').attr('src');
 
-        mangas.push({
+        manga.push({
             id,
             sourceId: 'weebcentral',
             title,
@@ -63,10 +63,10 @@ function parseMangas(html: string): Manga[] {
         });
     });
 
-    return mangas;
+    return manga;
 }
 
-async function fetchMangas(ctx: SearchContext): Promise<SourceMangasOutput> {
+async function fetchManga(ctx: SearchContext): Promise<SourceMangaOutput> {
     const response = await ctx.proxiedFetcher(baseUrl + '/search/data', {
         query: {
             author: '',
@@ -79,7 +79,7 @@ async function fetchMangas(ctx: SearchContext): Promise<SourceMangasOutput> {
             display_mode: 'Full Display',
         }
     })
-    return parseMangas(response);
+    return parseManga(response);
 }
 
 async function fetchChapters(ctx: MangaContext): Promise<SourceChaptersOutput> {
@@ -145,7 +145,7 @@ export const weebCentralScraper: Source = {
     url: baseUrl,
     rank: 22,
     flags: [flags.CORS_ALLOWED],
-    scrapeMangas: fetchMangas,
+    scrapeManga: fetchManga,
     scrapeChapters: fetchChapters,
     scrapePages: fetchPages
 };

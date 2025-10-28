@@ -1,13 +1,13 @@
 import * as cheerio from 'cheerio';
 import type { Chapter, Manga, Page } from '@/utils/types';
 import type { MangaContext, ChapterContext, SearchContext } from '@/utils/context';
-import type { SourceChaptersOutput, SourceMangasOutput, SourcePagesOutput } from './base';
+import type { SourceChaptersOutput, SourceMangaOutput, SourcePagesOutput } from './base';
 import type { Source } from '@/sources/base';
 import { flags } from '@/entrypoint/targets';
 
 const baseUrl = "https://novamanga.com";
 
-async function fetchMangas(ctx: SearchContext): Promise<SourceMangasOutput> {
+async function fetchManga(ctx: SearchContext): Promise<SourceMangaOutput> {
     const response = await ctx.proxiedFetcher(`${baseUrl}/search`, {
         query: {
             search: ctx.titleInput
@@ -15,7 +15,7 @@ async function fetchMangas(ctx: SearchContext): Promise<SourceMangasOutput> {
         method: "POST"
     })
     const $ = cheerio.load(response);
-    const mangas: Manga[] = [];
+    const manga: Manga[] = [];
     $('a[href^="/series/"]').each((_, el) => {
         const $el = $(el);
         const url = $el.attr('href');
@@ -25,7 +25,7 @@ async function fetchMangas(ctx: SearchContext): Promise<SourceMangasOutput> {
 
         const coverUrl = $el.find('img').attr('src') ?? undefined;
 
-        mangas.push({
+        manga.push({
             sourceId: 'novamanga',
             title,
             url: `${baseUrl}${url}`,
@@ -33,7 +33,7 @@ async function fetchMangas(ctx: SearchContext): Promise<SourceMangasOutput> {
         });
     });
 
-    return mangas;
+    return manga;
 }
 
 async function fetchChapters(ctx: MangaContext): Promise<SourceChaptersOutput> {
@@ -95,7 +95,7 @@ export const novaMangaScraper: Source = {
     url: baseUrl,
     rank: 10,
     flags: [flags.CORS_ALLOWED, flags.NEEDS_REFERER_HEADER],
-    scrapeMangas: fetchMangas,
+    scrapeManga: fetchManga,
     scrapeChapters: fetchChapters,
     scrapePages: fetchPages
 };

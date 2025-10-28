@@ -1,5 +1,5 @@
 import type { ChapterContext, MangaContext, SearchContext } from "@/utils/context";
-import type { Source, SourceChaptersOutput, SourceMangasOutput, SourcePagesOutput } from "./base";
+import type { Source, SourceChaptersOutput, SourceMangaOutput, SourcePagesOutput } from "./base";
 import { flags } from "@/entrypoint/targets";
 import type { Chapter, Manga, Page } from "@/utils/types";
 
@@ -71,7 +71,7 @@ interface PagesResponse {
     }
 }
 
-async function fetchMangas(ctx: SearchContext): Promise<SourceMangasOutput> {
+async function fetchManga(ctx: SearchContext): Promise<SourceMangaOutput> {
     const response: SearchResponse[] = await ctx.fetcher(apiUrl + '/v1.0/search', {
         query: {
             q: ctx.titleInput,
@@ -82,9 +82,9 @@ async function fetchMangas(ctx: SearchContext): Promise<SourceMangasOutput> {
         //     "X-Referer": baseUrl + '/'
         // }
     })
-    const mangas: Manga[] = []
+    const mangaList: Manga[] = []
     for (const manga of response) {
-        mangas.push({
+        mangaList.push({
             id: manga.hid,
             sourceId: 'comick',
             title: manga.title,
@@ -96,7 +96,7 @@ async function fetchMangas(ctx: SearchContext): Promise<SourceMangasOutput> {
             url: `${apiUrl}/comic/${manga.hid}/chapters`
         })
     }
-    return mangas;
+    return mangaList
 }
 
 async function fetchChapters(ctx: MangaContext): Promise<SourceChaptersOutput> {
@@ -155,7 +155,7 @@ export const comicKScraper: Source = {
     disabled: true,
     rank: 21,
     flags: [flags.CORS_ALLOWED],
-    scrapeMangas: fetchMangas,
+    scrapeManga: fetchManga,
     scrapeChapters: fetchChapters,
     scrapePages: fetchPages
 };

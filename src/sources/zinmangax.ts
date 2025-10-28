@@ -1,13 +1,13 @@
 import * as cheerio from 'cheerio';
 import type { Chapter, Manga, Page } from '@/utils/types';
 import type { MangaContext, ChapterContext, SearchContext } from '@/utils/context';
-import type { SourceChaptersOutput, SourceMangasOutput, SourcePagesOutput } from './base';
+import type { SourceChaptersOutput, SourceMangaOutput, SourcePagesOutput } from './base';
 import type { Source } from '@/sources/base';
 import { flags } from '@/entrypoint/targets';
 
 const baseUrl = 'https://zinmangax.com';
 
-async function fetchMangas(ctx: SearchContext): Promise<SourceMangasOutput> {
+async function fetchManga(ctx: SearchContext): Promise<SourceMangaOutput> {
     const searchUrl = `${baseUrl}/search`;
     const searchHtml = await ctx.proxiedFetcher(searchUrl, {
         query: {
@@ -15,7 +15,7 @@ async function fetchMangas(ctx: SearchContext): Promise<SourceMangasOutput> {
         }
     })
     const $ = cheerio.load(searchHtml);
-    const mangas: Manga[] = [];
+    const manga: Manga[] = [];
     $('.grid > .group').each((_, el) => {
         const el$ = $(el);
 
@@ -27,14 +27,14 @@ async function fetchMangas(ctx: SearchContext): Promise<SourceMangasOutput> {
         const coverImg = el$.find('img').first();
         const coverUrl = coverImg.attr('src') || '';
 
-        mangas.push({
+        manga.push({
             sourceId: 'zinmangax', // replace with your source id string
             title,
             url: baseUrl + url,
             coverUrl,
         });
     });
-    return mangas
+    return manga
 }
 
 async function fetchChapters(ctx: MangaContext): Promise<SourceChaptersOutput> {
@@ -96,7 +96,7 @@ export const zinmangaxScraper: Source = {
     url: baseUrl,
     rank: 15,
     flags: [flags.CORS_ALLOWED],
-    scrapeMangas: fetchMangas,
+    scrapeManga: fetchManga,
     scrapeChapters: fetchChapters,
     scrapePages: fetchPages
 };

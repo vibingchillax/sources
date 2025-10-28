@@ -23,7 +23,7 @@ function renderSourcesSelector(sources: ReturnType<SourceControls['listSources']
   return `
     <div style="margin-bottom:1em;">
       <label>Manga Title: <input id="titleInput" value="${defaultTitle}" /></label>
-      <button id="loadBtn">Search Mangas</button>
+      <button id="loadBtn">Search manga</button>
     </div>
     <div style="margin-bottom:1em;">
       <label>Source:
@@ -49,10 +49,10 @@ function renderSourcesSelector(sources: ReturnType<SourceControls['listSources']
 }
 
 
-function renderMangas(mangas: Manga[]) {
-  console.log(mangas);
+function renderManga(manga: Manga[]) {
+  console.log(manga);
   return `<ul>
-        ${mangas.map((m, i) =>
+        ${manga.map((m, i) =>
     `<li><a href="#" data-manga-idx="${i}">${m.title}</a></li>`
   ).join('')}
     </ul>`;
@@ -105,17 +105,17 @@ function setupUI(sourceControls: SourceControls, proxyUrl = 'http://localhost:30
 
     if (!outputDiv || !pagesDiv) return;
 
-    outputDiv.innerHTML = 'Searching mangas...';
+    outputDiv.innerHTML = 'Searching manga...';
     pagesDiv.innerHTML = '';
 
     try {
-      const mangas = await sourceControls.runSourceForMangas({ sourceId, titleInput: title });
-      if (!mangas.length) {
-        outputDiv.innerHTML = 'No mangas found.';
+      const manga = await sourceControls.runSourceForManga({ sourceId, titleInput: title });
+      if (!manga.length) {
+        outputDiv.innerHTML = 'No manga found.';
         return;
       }
 
-      outputDiv.innerHTML = renderMangas(mangas);
+      outputDiv.innerHTML = renderManga(manga);
 
       const source = sources.find(s => s.id === sourceId);
       // Keep this to check if source flags need proxy or referer (if you want to use them still)
@@ -126,7 +126,7 @@ function setupUI(sourceControls: SourceControls, proxyUrl = 'http://localhost:30
         mangaLink.addEventListener('click', async e => {
           e.preventDefault();
           const mIdx = +mangaLink.getAttribute('data-manga-idx')!;
-          const manga = mangas[mIdx];
+          const manga = manga[mIdx];
 
           outputDiv.innerHTML = 'Loading chapters...';
           try {
@@ -165,7 +165,7 @@ function setupUI(sourceControls: SourceControls, proxyUrl = 'http://localhost:30
       });
     } catch (err) {
       console.error(err);
-      outputDiv.innerHTML = 'Failed to search mangas.';
+      outputDiv.innerHTML = 'Failed to search manga.';
     }
   });
 

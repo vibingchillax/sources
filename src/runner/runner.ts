@@ -1,17 +1,17 @@
 import type { FeatureMap } from "@/entrypoint/targets";
 import type { UseableFetcher } from "@/fetchers/types";
-import type { Source, SourceChaptersOutput, SourceMangasOutput, SourcePagesOutput } from "@/sources/base";
+import type { Source, SourceChaptersOutput, SourceMangaOutput, SourcePagesOutput } from "@/sources/base";
 import type { ScrapeContext } from "@/utils/context";
 import type { Chapter, Manga } from "@/utils/types";
 
-export type RunAllForMangasOptions = {
+export type RunAllForMangaOptions = {
     fetcher: UseableFetcher;
     proxiedFetcher: UseableFetcher;
     features: FeatureMap;
     titleInput: string;
 }
 
-export type RunForMangasOptions = {
+export type RunForMangaOptions = {
     fetcher: UseableFetcher;
     proxiedFetcher: UseableFetcher;
     features: FeatureMap;
@@ -31,28 +31,28 @@ export type RunForPagesOptions = {
     chapter: Chapter;
 }
 
-export async function runAllSourcesForMangas(sources: Source[], ops: RunAllForMangasOptions):
-    Promise<Record<string, SourceMangasOutput>> {
-    const results: Record<string, SourceMangasOutput> = {};
+export async function runAllSourcesForManga(sources: Source[], ops: RunAllForMangaOptions):
+    Promise<Record<string, SourceMangaOutput>> {
+    const results: Record<string, SourceMangaOutput> = {};
     const contextBase: ScrapeContext = {
         fetcher: ops.fetcher,
         proxiedFetcher: ops.proxiedFetcher
     }
     for (const src of sources) {
         try {
-            results[src.id] = await src.scrapeMangas({
+            results[src.id] = await src.scrapeManga({
                 ...contextBase,
                 titleInput: ops.titleInput
             });
         } catch (err) {
-            console.warn(`Error scraping mangas from ${src.id}:`, err);
+            console.warn(`Error scraping manga from ${src.id}:`, err);
         }
     }
     return results;
 }
 
-export async function runSourceForMangas(sources: Source[], ops: RunForMangasOptions):
-    Promise<SourceMangasOutput> {
+export async function runSourceForManga(sources: Source[], ops: RunForMangaOptions):
+    Promise<SourceMangaOutput> {
     const contextBase: ScrapeContext = {
         fetcher: ops.fetcher,
         proxiedFetcher: ops.proxiedFetcher
@@ -62,11 +62,11 @@ export async function runSourceForMangas(sources: Source[], ops: RunForMangasOpt
         throw new Error(`Source with id ${ops.sourceId} not found`);
     }
     try {
-        const mangas = await source.scrapeMangas({
+        const manga = await source.scrapeManga({
             ...contextBase,
             titleInput: ops.titleInput
         })
-        return mangas
+        return manga
     } catch (error) {
         throw error;
     }

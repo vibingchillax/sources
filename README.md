@@ -1,5 +1,5 @@
 # manga_web sources
-Scrape mangas from multiple sources!
+Scrape manga from multiple sources!
 # Quick start
 If you don't want to mess with code, clone the repository:
 ```bash
@@ -27,14 +27,14 @@ export const sources = makeSources({
 
 Now you have an instace of the controller you can use anywhere. Let's scrape something:
 ```typescript
-const output = await sources.runAllForMangas({
+const output = await sources.runAllForManga({
     titleInput
 })
 ```
 This will scrape from **all** sources for the titleInput (**slow**):
 If you want to scrape from a specific source:
 ```typescript
-const output = await sources.runSourceForMangas({
+const output = await sources.runSourceForManga({
     sourceId
     titleInput
 })

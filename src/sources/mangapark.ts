@@ -1,7 +1,7 @@
 import * as cheerio from 'cheerio';
 import type { Chapter, Page } from '@/utils/types';
 import type { MangaContext, ChapterContext, SearchContext } from '@/utils/context';
-import type { SourceChaptersOutput, SourceMangasOutput, SourcePagesOutput } from './base';
+import type { SourceChaptersOutput, SourceMangaOutput, SourcePagesOutput } from './base';
 import type { Source } from '@/sources/base';
 import { flags } from '@/entrypoint/targets';
 
@@ -22,7 +22,7 @@ const baseUrl = "https://mangapark.net";
 // https://parkmanga.org
 // https://mpark.to
 
-async function fetchMangas(ctx: SearchContext): Promise<SourceMangasOutput> {
+async function fetchManga(ctx: SearchContext): Promise<SourceMangaOutput> {
     const searchHtml = await ctx.proxiedFetcher(`${baseUrl}/search`, {
         query: {
             word: ctx.titleInput
@@ -34,7 +34,7 @@ async function fetchMangas(ctx: SearchContext): Promise<SourceMangasOutput> {
 
     const mangaDivs = resultsContainer.find('div.flex.border-b.border-b-base-200.pb-5');
 
-    const mangas = mangaDivs.map((_, div) => {
+    const manga = mangaDivs.map((_, div) => {
         const el = $(div);
 
         const relativeUrl = el.find('a').first().attr('href');
@@ -61,7 +61,7 @@ async function fetchMangas(ctx: SearchContext): Promise<SourceMangasOutput> {
         };
     }).get().filter(Boolean); // Remove nulls
 
-    return mangas;
+    return manga;
 }
 
 async function fetchChapters(ctx: MangaContext): Promise<SourceChaptersOutput> {
@@ -165,7 +165,7 @@ export const mangaparkScraper: Source = {
     url: baseUrl,
     rank: 13,
     flags: [flags.CORS_ALLOWED, flags.NEEDS_REFERER_HEADER],
-    scrapeMangas: fetchMangas,
+    scrapeManga: fetchManga,
     scrapeChapters: fetchChapters,
     scrapePages: fetchPages
 };

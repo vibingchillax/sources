@@ -1,7 +1,7 @@
 import * as cheerio from 'cheerio';
 import type { Chapter, Manga, Page } from '@/utils/types';
 import type { MangaContext, ChapterContext, SearchContext } from '@/utils/context';
-import type { Source, SourceChaptersOutput, SourceMangasOutput, SourcePagesOutput } from '@/sources/base';
+import type { Source, SourceChaptersOutput, SourceMangaOutput, SourcePagesOutput } from '@/sources/base';
 import { flags } from '@/entrypoint/targets';
 import { NotFoundError } from '@/utils/errors';
 
@@ -27,8 +27,8 @@ function extractChapterNumber(title: string): string | undefined {
     return match ? match[1] : undefined;
 }
 
-async function fetchMangas(ctx: SearchContext): Promise<SourceMangasOutput> {
-    const mangas: Manga[] = [];
+async function fetchManga(ctx: SearchContext): Promise<SourceMangaOutput> {
+    const manga: Manga[] = [];
     const url = `${baseUrl}/search-autocomplete`
     const response: SearchResponse[] = JSON.parse(await ctx.proxiedFetcher(url, {
         query: {
@@ -37,7 +37,7 @@ async function fetchMangas(ctx: SearchContext): Promise<SourceMangasOutput> {
     }))
     for (const item of response) {
         try {
-            mangas.push({
+            manga.push({
                 sourceId: 'mangapanda',
                 title: item.label,
                 url: item.link,
@@ -47,7 +47,7 @@ async function fetchMangas(ctx: SearchContext): Promise<SourceMangasOutput> {
             console.warn(`[MangaPanda] ${error}`)
         }
     }
-    return mangas
+    return manga
 }
 
 async function fetchChapters(ctx: MangaContext): Promise<SourceChaptersOutput> {
@@ -110,7 +110,7 @@ export const mangaPandaScraper: Source = {
     url: baseUrl,
     rank: 18,
     flags: [flags.CORS_ALLOWED],
-    scrapeMangas: fetchMangas,
+    scrapeManga: fetchManga,
     scrapeChapters: fetchChapters,
     scrapePages: fetchPages
 };

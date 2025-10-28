@@ -1,7 +1,7 @@
 import * as cheerio from 'cheerio';
 import type { Chapter, Manga, Page } from '@/utils/types';
 import type { MangaContext, ChapterContext, SearchContext } from '@/utils/context';
-import type { SourceChaptersOutput, SourceMangasOutput, SourcePagesOutput } from './base';
+import type { SourceChaptersOutput, SourceMangaOutput, SourcePagesOutput } from './base';
 import type { Source } from '@/sources/base';
 import { flags } from '@/entrypoint/targets';
 import { NotFoundError } from '@/utils/errors';
@@ -57,8 +57,8 @@ function parseManga(html: string, url: string): Manga {
 }
 
 // search api blocked :( or proxy is not working properly
-async function fetchMangas(ctx: SearchContext): Promise<SourceMangasOutput> {
-    const mangas: Manga[] = [];
+async function fetchManga(ctx: SearchContext): Promise<SourceMangaOutput> {
+    const manga: Manga[] = [];
     // const searchUrl = `${baseUrl}/search/html/1`;
     // const body = new URLSearchParams();
     // body.append('keyword', ctx.titleInput);
@@ -86,7 +86,7 @@ async function fetchMangas(ctx: SearchContext): Promise<SourceMangasOutput> {
 
     //     const title = img.attr('alt')?.trim() || element.contents().first().text().trim();
 
-    //     mangas.push({
+    //     manga.push({
     //         sourceId: 'mangaoi',
     //         title,
     //         coverUrl,
@@ -104,8 +104,8 @@ async function fetchMangas(ctx: SearchContext): Promise<SourceMangasOutput> {
     if ($('body').text().includes('404') || $('body').text().toLowerCase().includes('not found')) {
         throw new NotFoundError(`[MangaOi] ${ctx.titleInput} not found`);
     }
-    mangas.push(parseManga($.html(), mangaUrl))
-    return mangas;
+    manga.push(parseManga($.html(), mangaUrl))
+    return manga;
 }
 
 
@@ -164,7 +164,7 @@ export const mangaoiScraper: Source = {
     url: baseUrl,
     rank: 14,
     flags: [flags.CORS_ALLOWED],
-    scrapeMangas: fetchMangas,
+    scrapeManga: fetchManga,
     scrapeChapters: fetchChapters,
     scrapePages: fetchPages
 };

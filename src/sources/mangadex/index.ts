@@ -1,6 +1,6 @@
 import type { Chapter, Manga, Page } from "@/utils/types";
 import type { MangaContext, ChapterContext, SearchContext } from "@/utils/context";
-import type { Source, SourceChaptersOutput, SourceMangasOutput, SourcePagesOutput } from "@/sources/base";
+import type { Source, SourceChaptersOutput, SourceMangaOutput, SourcePagesOutput } from "@/sources/base";
 import { flags } from "@/entrypoint/targets";
 import type { components } from "./types";
 import { NotFoundError } from "@/utils/errors";
@@ -11,7 +11,7 @@ type MangaList = components["schemas"]["MangaList"]
 type ChapterResponse = components["schemas"]["ChapterList"]
 type MDChapter = components["schemas"]["Chapter"]
 
-async function fetchMangas(ctx: SearchContext): Promise<SourceMangasOutput> {
+async function fetchManga(ctx: SearchContext): Promise<SourceMangaOutput> {
     const search: MangaList = await ctx.fetcher('/manga', {
         baseUrl,
         query: {
@@ -120,7 +120,7 @@ export const mangaDexScraper: Source = {
     url: baseUrl,
     rank: 4,
     flags: [flags.CORS_ALLOWED],
-    scrapeMangas: fetchMangas,
+    scrapeManga: fetchManga,
     scrapeChapters: fetchChapters,
     scrapePages: fetchPages
 };

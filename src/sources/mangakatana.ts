@@ -1,6 +1,6 @@
 import { flags } from "@/entrypoint/targets";
 import * as cheerio from 'cheerio';
-import type { Source, SourceChaptersOutput, SourceMangasOutput, SourcePagesOutput } from "./base";
+import type { Source, SourceChaptersOutput, SourceMangaOutput, SourcePagesOutput } from "./base";
 import type { ChapterContext, MangaContext, SearchContext } from "@/utils/context";
 import type { Chapter, Manga, Page } from "@/utils/types";
 import * as acorn from 'acorn';
@@ -8,7 +8,7 @@ import { NotFoundError } from "@/utils/errors";
 
 const baseUrl = 'https://mangakatana.com'
 
-async function fetchMangas(ctx: SearchContext): Promise<SourceMangasOutput> {
+async function fetchManga(ctx: SearchContext): Promise<SourceMangaOutput> {
     const response = await ctx.proxiedFetcher(baseUrl, {
         query: {
             search: encodeURIComponent(ctx.titleInput).replace(/%20/g, '+')
@@ -16,7 +16,7 @@ async function fetchMangas(ctx: SearchContext): Promise<SourceMangasOutput> {
     });
     const $ = cheerio.load(response);
 
-    const mangas: Manga[] = [];
+    const manga: Manga[] = [];
     const bodyText = $('body').text().toLowerCase();
 
     if (bodyText.includes('search results')) {
@@ -47,7 +47,7 @@ async function fetchMangas(ctx: SearchContext): Promise<SourceMangasOutput> {
                 tags.push($(tagEl).text().trim());
             });
 
-            mangas.push({
+            manga.push({
                 id,
                 sourceId: 'mangakatana',
                 title,
@@ -59,7 +59,7 @@ async function fetchMangas(ctx: SearchContext): Promise<SourceMangasOutput> {
             });
         });
 
-        return mangas;
+        return manga;
     }
     //handle cases where input title is perfect, site redirects to details page
     const title = $('.info h1.heading').text().trim();
@@ -98,7 +98,7 @@ async function fetchMangas(ctx: SearchContext): Promise<SourceMangasOutput> {
         url = url.slice(0, -3);
     }
 
-    mangas.push({
+    manga.push({
         sourceId: 'mangakatana',
         title,
         altTitles,
@@ -109,7 +109,7 @@ async function fetchMangas(ctx: SearchContext): Promise<SourceMangasOutput> {
         coverUrl: coverUrl || undefined,
         url,
     });
-    return mangas;
+    return manga;
 }
 
 async function fetchChapters(ctx: MangaContext): Promise<SourceChaptersOutput> {
@@ -215,7 +215,7 @@ export const mangaKatanaScraper: Source = {
     url: baseUrl,
     rank: 20,
     flags: [flags.CORS_ALLOWED],
-    scrapeMangas: fetchMangas,
+    scrapeManga: fetchManga,
     scrapeChapters: fetchChapters,
     scrapePages: fetchPages
 };
