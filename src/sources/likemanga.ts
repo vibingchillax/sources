@@ -123,7 +123,7 @@ export const likeMangaScraper: Source = {
     name: 'LikeManga',
     url: baseUrl,
     rank: 28,
-    flags: [flags.CORS_ALLOWED, flags.NEEDS_REFERER_HEADER],
+    flags: [flags.NEEDS_REFERER_HEADER],
     scrapeManga: fetchManga,
     scrapeChapters: fetchChapters,
     scrapePages: fetchPages

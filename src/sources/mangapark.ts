@@ -164,7 +164,7 @@ export const mangaparkScraper: Source = {
     name: 'MangaPark',
     url: baseUrl,
     rank: 13,
-    flags: [flags.CORS_ALLOWED, flags.NEEDS_REFERER_HEADER],
+    flags: [flags.NEEDS_REFERER_HEADER],
     scrapeManga: fetchManga,
     scrapeChapters: fetchChapters,
     scrapePages: fetchPages

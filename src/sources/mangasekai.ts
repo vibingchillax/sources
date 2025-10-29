@@ -91,7 +91,7 @@ export const mangasekaiScraper: Source = {
     name: 'MangaSekai',
     url: baseUrl,
     rank: 12,
-    flags: [flags.CORS_ALLOWED],
+    flags: [],
     scrapeManga: fetchManga,
     scrapeChapters: fetchChapters,
     scrapePages: fetchPages

@@ -111,7 +111,7 @@ export const mangaTaroScraper: Source = {
     name: 'MangaTARO',
     url: baseUrl,
     rank: 9,
-    flags: [flags.CORS_ALLOWED],
+    flags: [],
     scrapeManga: fetchManga,
     scrapeChapters: fetchChapters,
     scrapePages: fetchPages

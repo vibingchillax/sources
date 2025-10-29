@@ -150,7 +150,7 @@ export const fanFoxScraper: Source = {
     name: 'FanFox (MangaFox)',
     url: baseUrl,
     rank: 16,
-    flags: [flags.CORS_ALLOWED, flags.NEEDS_REFERER_HEADER],
+    flags: [flags.NEEDS_REFERER_HEADER],
     scrapeManga: fetchManga,
     scrapeChapters: fetchChapters,
     scrapePages: fetchPages

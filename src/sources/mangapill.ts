@@ -114,7 +114,7 @@ export const mangaPillScraper: Source = {
     name: 'Mangapill',
     url: baseUrl,
     rank: 30,
-    flags: [flags.CORS_ALLOWED],
+    flags: [],
     scrapeManga: fetchManga,
     scrapeChapters: fetchChapters,
     scrapePages: fetchPages,

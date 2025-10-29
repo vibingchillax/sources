@@ -85,7 +85,7 @@ export const atsuMoeScraper: Source = {
     name: 'Atsumaru',
     url: baseUrl,
     rank: 26,
-    flags: [flags.CORS_ALLOWED, flags.NEEDS_REFERER_HEADER],
+    flags: [flags.NEEDS_REFERER_HEADER],
     scrapeManga: fetchManga,
     scrapeChapters: fetchChapters,
     scrapePages: fetchPages,

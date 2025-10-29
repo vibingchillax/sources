@@ -144,7 +144,7 @@ export const weebCentralScraper: Source = {
     name: 'WeebCentral',
     url: baseUrl,
     rank: 22,
-    flags: [flags.CORS_ALLOWED],
+    flags: [],
     scrapeManga: fetchManga,
     scrapeChapters: fetchChapters,
     scrapePages: fetchPages

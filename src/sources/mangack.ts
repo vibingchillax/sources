@@ -102,7 +102,7 @@ export const mangackScraper: Source = {
     name: 'Mangack',
     url: baseUrl,
     rank: 8,
-    flags: [flags.CORS_ALLOWED],
+    flags: [],
     scrapeManga: fetchManga,
     scrapeChapters: fetchChapters,
     scrapePages: fetchPages

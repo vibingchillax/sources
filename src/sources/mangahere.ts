@@ -154,7 +154,7 @@ export const mangaHereScraper: Source = {
     name: 'MangaHere',
     url: baseUrl,
     rank: 17,
-    flags: [flags.CORS_ALLOWED, flags.NEEDS_REFERER_HEADER],
+    flags: [flags.NEEDS_REFERER_HEADER],
     scrapeManga: fetchManga,
     scrapeChapters: fetchChapters,
     scrapePages: fetchPages

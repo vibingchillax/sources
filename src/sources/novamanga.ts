@@ -94,7 +94,7 @@ export const novaMangaScraper: Source = {
     name: 'Nova Manga',
     url: baseUrl,
     rank: 10,
-    flags: [flags.CORS_ALLOWED, flags.NEEDS_REFERER_HEADER],
+    flags: [flags.NEEDS_REFERER_HEADER],
     scrapeManga: fetchManga,
     scrapeChapters: fetchChapters,
     scrapePages: fetchPages

@@ -95,7 +95,7 @@ export const zinmangaxScraper: Source = {
     name: 'ZinMangaX',
     url: baseUrl,
     rank: 15,
-    flags: [flags.CORS_ALLOWED],
+    flags: [],
     scrapeManga: fetchManga,
     scrapeChapters: fetchChapters,
     scrapePages: fetchPages

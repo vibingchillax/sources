@@ -100,7 +100,7 @@ export const mangaReaderScraper: Source = {
     name: 'MangaReader',
     url: baseUrl,
     rank: 24,
-    flags: [flags.CORS_ALLOWED],
+    flags: [],
     scrapeManga: fetchManga,
     scrapeChapters: fetchChapters,
     scrapePages: fetchPages,

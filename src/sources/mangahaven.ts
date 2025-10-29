@@ -85,7 +85,7 @@ export const mangaHavenScraper: Source = {
     name: 'MangaHaven',
     url: baseUrl,
     rank: 23,
-    flags: [flags.CORS_ALLOWED],
+    flags: [],
     scrapeManga: fetchManga,
     scrapeChapters: fetchChapters,
     scrapePages: fetchPages

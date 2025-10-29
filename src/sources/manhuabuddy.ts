@@ -122,7 +122,7 @@ export const manhuaBuddyScraper: Source = {
     name: 'ManhuaBuddy',
     url: baseUrl,
     rank: 3,
-    flags: [flags.CORS_ALLOWED],
+    flags: [],
     scrapeManga: fetchManga,
     scrapeChapters: fetchChapters,
     scrapePages: fetchPages

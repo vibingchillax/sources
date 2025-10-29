@@ -214,7 +214,7 @@ export const mangaKatanaScraper: Source = {
     name: 'MangaKatana',
     url: baseUrl,
     rank: 20,
-    flags: [flags.CORS_ALLOWED],
+    flags: [],
     scrapeManga: fetchManga,
     scrapeChapters: fetchChapters,
     scrapePages: fetchPages

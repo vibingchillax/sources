@@ -136,7 +136,7 @@ export const mangaTownScraper: Source = {
     name: 'MangaTown',
     url: baseUrl,
     rank: 19,
-    flags: [flags.CORS_ALLOWED, flags.NEEDS_REFERER_HEADER],
+    flags: [flags.NEEDS_REFERER_HEADER],
     scrapeManga: fetchManga,
     scrapeChapters: fetchChapters,
     scrapePages: fetchPages

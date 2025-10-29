@@ -120,7 +120,7 @@ export const manhwaClanScraper: Source = {
     name: 'ManhwaClan',
     url: baseUrl,
     rank: 29,
-    flags: [flags.CORS_ALLOWED],
+    flags: [],
     scrapeManga: fetchManga,
     scrapeChapters: fetchChapters,
     scrapePages: fetchPages

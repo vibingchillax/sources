@@ -100,7 +100,7 @@ export const mangaHasuScraper: Source = {
     name: 'MangaHasu',
     url: baseUrl,
     rank: 27,
-    flags: [flags.CORS_ALLOWED, flags.NEEDS_REFERER_HEADER],
+    flags: [flags.NEEDS_REFERER_HEADER],
     scrapeManga: fetchManga,
     scrapeChapters: fetchChapters,
     scrapePages: fetchPages,

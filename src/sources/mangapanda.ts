@@ -109,7 +109,7 @@ export const mangaPandaScraper: Source = {
     name: 'MangaPanda',
     url: baseUrl,
     rank: 18,
-    flags: [flags.CORS_ALLOWED],
+    flags: [],
     scrapeManga: fetchManga,
     scrapeChapters: fetchChapters,
     scrapePages: fetchPages

@@ -163,7 +163,7 @@ export const mangaoiScraper: Source = {
     name: 'MangaOi',
     url: baseUrl,
     rank: 14,
-    flags: [flags.CORS_ALLOWED],
+    flags: [],
     scrapeManga: fetchManga,
     scrapeChapters: fetchChapters,
     scrapePages: fetchPages
