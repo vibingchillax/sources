@@ -1,6 +1,5 @@
 import type { ChapterContext, MangaContext, SearchContext } from "@/utils/context";
 import type { Source, SourceChaptersOutput, SourceMangaOutput, SourcePagesOutput } from "./base";
-import { flags } from "@/entrypoint/targets";
 import type { Chapter, Manga, Page } from "@/utils/types";
 import * as cheerio from 'cheerio';
 

@@ -2,7 +2,6 @@ import * as cheerio from 'cheerio';
 import type { Chapter, Manga, Page } from '@/utils/types';
 import type { MangaContext, ChapterContext, SearchContext } from '@/utils/context';
 import type { Source, SourceChaptersOutput, SourceMangaOutput, SourcePagesOutput } from '@/sources/base';
-import { flags } from '@/entrypoint/targets';
 import { NotFoundError } from '@/utils/errors';
 
 const baseUrl = "https://www.mangapanda.in";

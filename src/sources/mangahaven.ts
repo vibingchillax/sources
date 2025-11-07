@@ -1,4 +1,3 @@
-import { flags } from "@/entrypoint/targets"
 import type { Source, SourceChaptersOutput, SourceMangaOutput, SourcePagesOutput } from "./base"
 import type { ChapterContext, MangaContext, SearchContext } from "@/utils/context"
 import type { Chapter, Manga, Page } from "@/utils/types"

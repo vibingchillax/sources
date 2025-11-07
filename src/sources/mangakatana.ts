@@ -1,4 +1,3 @@
-import { flags } from "@/entrypoint/targets";
 import * as cheerio from 'cheerio';
 import type { Source, SourceChaptersOutput, SourceMangaOutput, SourcePagesOutput } from "./base";
 import type { ChapterContext, MangaContext, SearchContext } from "@/utils/context";

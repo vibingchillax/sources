@@ -3,7 +3,6 @@ import type { Chapter, Manga, Page } from '@/utils/types';
 import type { MangaContext, ChapterContext, SearchContext } from '@/utils/context';
 import type { SourceChaptersOutput, SourceMangaOutput, SourcePagesOutput } from './base';
 import type { Source } from '@/sources/base';
-import { flags } from '@/entrypoint/targets';
 
 const baseUrl = "https://manhuabuddy.com"
 
