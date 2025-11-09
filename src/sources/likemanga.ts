@@ -5,19 +5,9 @@ import type { SourceChaptersOutput, SourceMangaOutput, SourcePagesOutput } from 
 import type { Source } from '@/sources/base';
 import { flags } from '@/entrypoint/targets';
 import { NotFoundError } from '@/utils/errors';
+import type { WPSearchResponse } from '@/utils/wordpress';
 
 const baseUrl = "https://likemanga.in";
-
-interface MangaItem {
-    title: string,
-    url: string,
-    type: string
-}
-
-interface SearchResponse {
-    success: boolean
-    data: MangaItem[]
-}
 
 async function fetchManga(ctx: SearchContext): Promise<SourceMangaOutput> {
     //same api as mangaread
@@ -26,7 +16,7 @@ async function fetchManga(ctx: SearchContext): Promise<SourceMangaOutput> {
     formData.append('action', 'wp-manga-search-manga');
     formData.append('title', ctx.titleInput);
 
-    const response: SearchResponse = await ctx.proxiedFetcher(`${baseUrl}/wp-admin/admin-ajax.php`, {
+    const response: WPSearchResponse = await ctx.proxiedFetcher(`${baseUrl}/wp-admin/admin-ajax.php`, {
         body: formData,
         method: "POST",
         // headers: {

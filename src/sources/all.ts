@@ -29,6 +29,7 @@ import { likeMangaScraper } from "./likemanga";
 import { manhwaClanScraper } from "./manhwaclan";
 import { mangaPillScraper } from "./mangapill";
 import { weebDexScraper } from "./weebdex";
+import { coffeemangaScraper } from "./coffeemanga";
 
 export function gatherAllSources(): Source[] {
     return [
@@ -38,7 +39,6 @@ export function gatherAllSources(): Source[] {
         // manganatoScraper,
         fanFoxScraper,
         readmangaScraper,
-        // coffeemangaScraper,
         // kunmangaScraper,
         mangackScraper,
         mangaTaroScraper,
@@ -61,6 +61,7 @@ export function gatherAllSources(): Source[] {
         likeMangaScraper,
         manhwaClanScraper,
         mangaPillScraper,
-        weebDexScraper
+        weebDexScraper,
+        coffeemangaScraper
     ].sort((a,b) => (a.rank ?? 0) - (b.rank ?? 0));
 }

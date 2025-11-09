@@ -149,6 +149,7 @@ function setupUI(sourceControls: SourceControls, proxyUrl = 'http://localhost:30
                     pagesDiv.innerHTML = 'No pages found.';
                     return;
                   }
+                  console.log(pages)
                   // Use the toggle here:
                   await renderPages(pages, useProxyToggle, proxyUrl, referer);
                 } catch (err) {

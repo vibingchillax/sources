@@ -4,19 +4,9 @@ import type { MangaContext, ChapterContext, SearchContext } from '@/utils/contex
 import type { SourceChaptersOutput, SourceMangaOutput, SourcePagesOutput } from './base';
 import type { Source } from '@/sources/base';
 import { NotFoundError } from '@/utils/errors';
+import type { WPSearchResponse } from '@/utils/wordpress';
 
 const baseUrl = "https://manhwaclan.com";
-
-interface MangaItem {
-    title: string,
-    url: string,
-    type: string
-}
-
-interface SearchResponse {
-    success: boolean
-    data: MangaItem[]
-}
 
 async function fetchManga(ctx: SearchContext): Promise<SourceMangaOutput> {
     const manga: Manga[] = [];
@@ -24,7 +14,7 @@ async function fetchManga(ctx: SearchContext): Promise<SourceMangaOutput> {
     formData.append('action', 'wp-manga-search-manga');
     formData.append('title', ctx.titleInput);
 
-    const response: SearchResponse = await ctx.proxiedFetcher(`${baseUrl}/wp-admin/admin-ajax.php`, {
+    const response: WPSearchResponse = await ctx.proxiedFetcher(`${baseUrl}/wp-admin/admin-ajax.php`, {
         body: formData,
         method: "POST",
         headers: {
