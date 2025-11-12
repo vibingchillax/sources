@@ -1,7 +1,7 @@
 import { flags } from '../src/entrypoint/targets';
 import type { SourceControls } from '../src/entrypoint/sources';
 import type { Manga, Chapter, Page } from '../src/utils/types';
-import { sources } from './source';
+import { sources, proxyBase2 as proxyUrl } from './source';
 // ---------------------
 // Helper functions
 // ---------------------
@@ -12,6 +12,11 @@ async function loadImageThroughProxy(proxyUrl: string, imageUrl: string, referer
   if (!response.ok) throw new Error(`Failed to fetch image ${imageUrl}`);
   const blob = await response.blob();
   return URL.createObjectURL(blob);
+}
+
+function getUseProxy(): boolean {
+  const toggle = document.getElementById('proxyToggle') as HTMLInputElement | null;
+  return toggle?.checked ?? false;
 }
 
 function render(html: string) {
@@ -30,7 +35,7 @@ function renderSourcesSelector(sources: ReturnType<SourceControls['listSources']
         <select id="sourceSelect">
           ${sources.map(s => {
     const flagList = (s.flags || [])
-      .map(f => f.replace(/^flags\./, '').toLowerCase())
+      .map((f: any) => f.replace(/^flags\./, '').toLowerCase())
       .join(', ');
     return `<option value="${s.id}">${s.id}${flagList ? ` (${flagList})` : ''}</option>`;
   }).join('')}
@@ -70,27 +75,47 @@ function renderChapters(chapters: Chapter[]) {
 async function renderPages(pages: Page[], useProxy: boolean, proxyUrl: string, referer?: string) {
   const container = document.getElementById('pages');
   if (!container) return;
-  container.innerHTML = 'Loading images...';
+  container.innerHTML = '';
 
-  try {
-    const imageSources = await Promise.all(
-      pages.map(p =>
-        useProxy ? loadImageThroughProxy(proxyUrl, p.url, referer) : Promise.resolve(p.url)
-      )
-    );
-    container.innerHTML = imageSources.map(
-      src => `<img src="${src}" style="max-width: 100%; margin-bottom: 1em;" />`
-    ).join('');
-  } catch (err) {
-    console.error(err);
-    container.innerHTML = 'Failed to load images.';
+  const progress = document.createElement('div');
+  progress.textContent = `Loading 0 / ${pages.length} images...`;
+  container.appendChild(progress);
+
+  const imgContainer = document.createElement('div');
+  container.appendChild(imgContainer);
+
+  let loaded = 0;
+  for (const [i, p] of pages.entries()) {
+    const img = document.createElement('img');
+    img.style.maxWidth = '100%';
+    img.style.marginBottom = '1em';
+    img.loading = 'lazy';
+    img.alt = `Page ${i + 1}`;
+
+    imgContainer.appendChild(img);
+
+    (async () => {
+      try {
+        const src = useProxy
+          ? await loadImageThroughProxy(proxyUrl, p.url, referer)
+          : p.url;
+        img.src = src;
+        loaded++;
+        progress.textContent = `Loaded ${loaded} / ${pages.length} images`;
+      } catch (err) {
+        console.error(`Failed to load image ${p.url}`, err);
+        img.alt = 'Failed to load';
+        img.style.opacity = '0.5';
+      }
+    })();
   }
 }
+
 
 // ---------------------
 // Main UI Logic
 // ---------------------
-function setupUI(sourceControls: SourceControls, proxyUrl = 'http://localhost:3000') {
+function setupUI(sourceControls: SourceControls, proxyUrl: string) {
   const sources = sourceControls.listSources();
   render(renderSourcesSelector(sources));
 
@@ -151,7 +176,7 @@ function setupUI(sourceControls: SourceControls, proxyUrl = 'http://localhost:30
                   }
                   console.log(pages)
                   // Use the toggle here:
-                  await renderPages(pages, useProxyToggle, proxyUrl, referer);
+                  await renderPages(pages, getUseProxy(), proxyUrl, referer);
                 } catch (err) {
                   console.error(err);
                   pagesDiv.innerHTML = 'Failed to load pages.';
@@ -178,7 +203,7 @@ function setupUI(sourceControls: SourceControls, proxyUrl = 'http://localhost:30
 if (typeof window !== 'undefined') {
   window.addEventListener('DOMContentLoaded', () => {
     const sourceControls = sources
-    setupUI(sourceControls);
+    setupUI(sourceControls, proxyUrl);
   });
 }
 
