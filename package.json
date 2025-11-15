@@ -41,6 +41,7 @@
   "devDependencies": {
     "@types/acorn": "^4.0.6",
     "@types/node": "^24.0.3",
+    "@types/set-cookie-parser": "^2.4.10",
     "typescript": "~5.8.3",
     "vite": "^6.3.5",
     "vite-plugin-dts": "^4.5.4"
@@ -48,6 +49,8 @@
   "dependencies": {
     "acorn": "^8.15.0",
     "cheerio": "^1.1.0",
-    "form-data": "^4.0.3"
+    "cookie": "^1.0.2",
+    "form-data": "^4.0.3",
+    "set-cookie-parser": "^2.7.2"
   }
 }
