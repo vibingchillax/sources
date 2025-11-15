@@ -9,6 +9,7 @@ const headerMap: Record<string, string> = {
   origin: 'X-Origin',
   'user-agent': 'X-User-Agent',
   'x-real-ip': 'X-X-Real-Ip',
+  'x-csrf-token': 'X-X-CSRF-TOKEN'
 };
 
 const responseHeaderMap: Record<string, string> = {
