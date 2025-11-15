@@ -1,7 +1,7 @@
-import { serializeBody } from '@/fetchers/body';
-import { makeFullUrl } from '@/fetchers/common';
-import type { FetchLike, FetchReply } from '@/fetchers/fetch';
-import type { Fetcher } from '@/fetchers/types';
+import { serializeBody } from "@/fetchers/body";
+import { makeFullUrl } from "@/fetchers/common";
+import type { FetchLike, FetchReply } from "@/fetchers/fetch";
+import type { Fetcher } from "@/fetchers/types";
 
 function getHeaders(list: string[], res: FetchReply): Headers {
   const output = new Headers();
@@ -41,7 +41,9 @@ export function makeStandardFetcher(f: FetchLike): Fetcher {
       clearTimeout(timeoutId);
 
       let body: any;
-      const isJson = res.headers.get('content-type')?.includes('application/json');
+      const isJson = res.headers
+        .get("content-type")
+        ?.includes("application/json");
       if (isJson) body = await res.json();
       else body = await res.text();
 
@@ -52,8 +54,10 @@ export function makeStandardFetcher(f: FetchLike): Fetcher {
         statusCode: res.status,
       };
     } catch (error: any) {
-      if (error.name === 'AbortError') {
-        throw new Error(`Fetch request to ${fullUrl} timed out after ${timeout}ms`);
+      if (error.name === "AbortError") {
+        throw new Error(
+          `Fetch request to ${fullUrl} timed out after ${timeout}ms`,
+        );
       }
       throw error;
     }

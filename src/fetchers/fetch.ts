@@ -7,7 +7,7 @@ export type FetchOps = {
   headers: Record<string, string>;
   method: string;
   body: any;
-  credentials?: 'include' | 'same-origin' | 'omit';
+  credentials?: "include" | "same-origin" | "omit";
   signal?: any;
 };
 
@@ -26,4 +26,7 @@ export type FetchReply = {
   status: number;
 };
 
-export type FetchLike = (url: string, ops?: FetchOps | undefined) => Promise<FetchReply>;
+export type FetchLike = (
+  url: string,
+  ops?: FetchOps | undefined,
+) => Promise<FetchReply>;

@@ -1,5 +1,5 @@
-import { serialize } from 'cookie';
-import setCookieParser from 'set-cookie-parser';
+import { serialize } from "cookie";
+import setCookieParser from "set-cookie-parser";
 
 export interface Cookie {
   name: string;
@@ -9,7 +9,7 @@ export interface Cookie {
 export function makeCookieHeader(cookies: Record<string, string>): string {
   return Object.entries(cookies)
     .map(([name, value]) => serialize(name, value))
-    .join('; ');
+    .join("; ");
 }
 
 export function parseSetCookie(headerValue: string): Record<string, Cookie> {

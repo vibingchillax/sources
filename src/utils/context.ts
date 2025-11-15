@@ -1,19 +1,19 @@
-import type { UseableFetcher } from "@/fetchers/types"
+import type { UseableFetcher } from "@/fetchers/types";
 import type { Chapter, Manga } from "./types";
 
 export type ScrapeContext = {
-    proxiedFetcher: UseableFetcher;
-    fetcher: UseableFetcher;
-}
+  proxiedFetcher: UseableFetcher;
+  fetcher: UseableFetcher;
+};
 
 export type SearchContext = ScrapeContext & {
-    titleInput: string
-}
+  titleInput: string;
+};
 
 export type MangaContext = ScrapeContext & {
-    manga: Manga;
-}
+  manga: Manga;
+};
 
 export type ChapterContext = ScrapeContext & {
-    chapter: Chapter;
-}
+  chapter: Chapter;
+};

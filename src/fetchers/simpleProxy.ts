@@ -1,22 +1,25 @@
-import { makeFullUrl } from '@/fetchers/common';
-import type { FetchLike } from '@/fetchers/fetch';
-import { makeStandardFetcher } from '@/fetchers/standardFetch';
-import type { Fetcher } from '@/fetchers/types';
+import { makeFullUrl } from "@/fetchers/common";
+import type { FetchLike } from "@/fetchers/fetch";
+import { makeStandardFetcher } from "@/fetchers/standardFetch";
+import type { Fetcher } from "@/fetchers/types";
 
 const headerMap: Record<string, string> = {
-  cookie: 'X-Cookie',
-  referer: 'X-Referer',
-  origin: 'X-Origin',
-  'user-agent': 'X-User-Agent',
-  'x-real-ip': 'X-X-Real-Ip',
-  'x-csrf-token': 'X-X-CSRF-TOKEN'
+  cookie: "X-Cookie",
+  referer: "X-Referer",
+  origin: "X-Origin",
+  "user-agent": "X-User-Agent",
+  "x-real-ip": "X-X-Real-Ip",
+  "x-csrf-token": "X-X-CSRF-TOKEN",
 };
 
 const responseHeaderMap: Record<string, string> = {
-  'x-set-cookie': 'Set-Cookie',
+  "x-set-cookie": "Set-Cookie",
 };
 
-export function makeSimpleProxyFetcher(proxyUrl: string, f: FetchLike): Fetcher {
+export function makeSimpleProxyFetcher(
+  proxyUrl: string,
+  f: FetchLike,
+): Fetcher {
   const proxiedFetch: Fetcher = async (url, ops) => {
     const fetcher = makeStandardFetcher(async (a, b) => {
       // AbortController
@@ -26,7 +29,7 @@ export function makeSimpleProxyFetcher(proxyUrl: string, f: FetchLike): Fetcher 
 
       try {
         const res = await f(a, {
-          method: b?.method || 'GET',
+          method: b?.method || "GET",
           headers: b?.headers || {},
           body: b?.body,
           credentials: b?.credentials,
@@ -44,10 +47,10 @@ export function makeSimpleProxyFetcher(proxyUrl: string, f: FetchLike): Fetcher 
         });
 
         // set correct final url
-        res.extraUrl = res.headers.get('X-Final-Destination') ?? res.url;
+        res.extraUrl = res.headers.get("X-Final-Destination") ?? res.url;
         return res;
       } catch (error: any) {
-        if (error.name === 'AbortError') {
+        if (error.name === "AbortError") {
           throw new Error(`Fetch request to ${a} timed out after ${timeout}ms`);
         }
         throw error;
@@ -59,8 +62,8 @@ export function makeSimpleProxyFetcher(proxyUrl: string, f: FetchLike): Fetcher 
     if (ops.useBrowser) {
       ops.headers = {
         ...ops.headers,
-        'x-use-browser': 'true'
-      }
+        "x-use-browser": "true",
+      };
     }
 
     const headerEntries = Object.entries(ops.headers).map((entry) => {

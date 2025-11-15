@@ -1,34 +1,46 @@
-import * as cheerio from 'cheerio';
-import type { Chapter, Manga, Page } from '@/utils/types';
-import type { MangaContext, ChapterContext, SearchContext } from '@/utils/context';
-import type { SourceChaptersOutput, SourceMangaOutput, SourcePagesOutput } from './base';
-import type { Source } from '@/sources/base';
-import type { WPSearchResponse } from '@/utils/wordpress';
+import * as cheerio from "cheerio";
+import type { Chapter, Manga, Page } from "@/utils/types";
+import type {
+  MangaContext,
+  ChapterContext,
+  SearchContext,
+} from "@/utils/context";
+import type {
+  SourceChaptersOutput,
+  SourceMangaOutput,
+  SourcePagesOutput,
+} from "./base";
+import type { Source } from "@/sources/base";
+import type { WPSearchResponse } from "@/utils/wordpress";
 
 const baseUrl = "https://coffeemanga.ink";
 
 async function fetchManga(ctx: SearchContext): Promise<SourceMangaOutput> {
   const manga: Manga[] = [];
   const formData = new FormData();
-  formData.append('action', 'wp-manga-search-manga');
-  formData.append('title', ctx.titleInput);
+  formData.append("action", "wp-manga-search-manga");
+  formData.append("title", ctx.titleInput);
 
-  const response: WPSearchResponse = await ctx.proxiedFetcher(`${baseUrl}/wp-admin/admin-ajax.php`, {
-    body: formData,
-    method: "POST",
-    // headers: {
-    //     "X-Origin": baseUrl,
-    //     "X-Referer": `${baseUrl}/?s=${encodeURIComponent(ctx.titleInput).replace(/%20/g, '+')}&post_type=wp-manga`
-    // }
-  })
-  if (!response.success) throw new Error(`[CoffeeManga] error while connecting to api`);
+  const response: WPSearchResponse = await ctx.proxiedFetcher(
+    `${baseUrl}/wp-admin/admin-ajax.php`,
+    {
+      body: formData,
+      method: "POST",
+      // headers: {
+      //     "X-Origin": baseUrl,
+      //     "X-Referer": `${baseUrl}/?s=${encodeURIComponent(ctx.titleInput).replace(/%20/g, '+')}&post_type=wp-manga`
+      // }
+    },
+  );
+  if (!response.success)
+    throw new Error(`[CoffeeManga] error while connecting to api`);
 
   for (const item of response.data) {
     manga.push({
       title: item.title,
       url: item.url,
-      sourceId: 'coffeemanga',
-    })
+      sourceId: "coffeemanga",
+    });
   }
   return manga;
 }
@@ -39,13 +51,13 @@ async function fetchChapters(ctx: MangaContext): Promise<SourceChaptersOutput> {
 
   const chapters: Chapter[] = [];
 
-  $('.wp-manga-chapter').each((i, el) => {
+  $(".wp-manga-chapter").each((i, el) => {
     const $el = $(el);
-    const $a = $el.find('a');
-    const url = $a.attr('href') || '';
+    const $a = $el.find("a");
+    const url = $a.attr("href") || "";
     const titleText = $a.text().trim();
 
-    const date = $el.find('.chapter-release-date i').text().trim();
+    const date = $el.find(".chapter-release-date i").text().trim();
 
     const match = titleText.match(/chapter\s*([\d.]+)/i);
     const chapterNumber = match ? match[1] : undefined;
@@ -54,47 +66,43 @@ async function fetchChapters(ctx: MangaContext): Promise<SourceChaptersOutput> {
 
     chapters.push({
       id: String(i),
-      sourceId: 'coffeemanga',
+      sourceId: "coffeemanga",
       chapterNumber,
       url,
-      date
+      date,
     });
   });
 
   return chapters;
 }
 
-
 async function fetchPages(ctx: ChapterContext): Promise<SourcePagesOutput> {
   const response = await ctx.proxiedFetcher(ctx.chapter.url);
   const $ = cheerio.load(response);
   const pages: Page[] = [];
 
-  $('div.page-break img.wp-manga-chapter-img').each((i, el) => {
+  $("div.page-break img.wp-manga-chapter-img").each((i, el) => {
     const $img = $(el);
 
-    let src =
-      $img.attr('data-src')?.trim() ||
-      $img.attr('src')?.trim();
+    let src = $img.attr("data-src")?.trim() || $img.attr("src")?.trim();
 
-    if (!src || src.startsWith('data:image/')) return;
+    if (!src || src.startsWith("data:image/")) return;
 
-    if (src.startsWith('//')) src = 'https:' + src;
+    if (src.startsWith("//")) src = "https:" + src;
 
     pages.push({ id: i, url: src });
   });
-
 
   return pages;
 }
 
 export const coffeemangaScraper: Source = {
-  id: 'coffeemanga',
-  name: 'CoffeeManga',
+  id: "coffeemanga",
+  name: "CoffeeManga",
   url: baseUrl,
   rank: 32,
   flags: [],
   scrapeManga: fetchManga,
   scrapeChapters: fetchChapters,
-  scrapePages: fetchPages
+  scrapePages: fetchPages,
 };

@@ -1,161 +1,186 @@
 // same site architecture as fanfox (??)
 
-import * as cheerio from 'cheerio';
-import type { Chapter, Manga, Page } from '@/utils/types';
-import type { MangaContext, ChapterContext, SearchContext } from '@/utils/context';
-import type { Source, SourceChaptersOutput, SourceMangaOutput, SourcePagesOutput } from '@/sources/base';
-import { Element } from 'domhandler';
-import { flags } from '@/entrypoint/targets';
-import { chapterFun, extractDm5KeyFromPacked, extractVarFromScript } from '@/utils/chapterfunashx';
+import * as cheerio from "cheerio";
+import type { Chapter, Manga, Page } from "@/utils/types";
+import type {
+  MangaContext,
+  ChapterContext,
+  SearchContext,
+} from "@/utils/context";
+import type {
+  Source,
+  SourceChaptersOutput,
+  SourceMangaOutput,
+  SourcePagesOutput,
+} from "@/sources/base";
+import { Element } from "domhandler";
+import { flags } from "@/entrypoint/targets";
+import {
+  chapterFun,
+  extractDm5KeyFromPacked,
+  extractVarFromScript,
+} from "@/utils/chapterfunashx";
 
 const baseUrl = "https://www.mangahere.cc";
 
 function parseManga($: cheerio.CheerioAPI): Manga[] {
-    const manga: Manga[] = [];
-    $('ul.manga-list-4-list > li').each((_, el) => {
-        const $el = $(el);
+  const manga: Manga[] = [];
+  $("ul.manga-list-4-list > li").each((_, el) => {
+    const $el = $(el);
 
-        const $titleLink = $el.find('p.manga-list-4-item-title > a');
-        const title = $titleLink.attr('title')?.trim() || '';
-        const relativeUrl = $titleLink.attr('href') || '';
-        const url = relativeUrl.startsWith('http') ? relativeUrl : `${baseUrl}${relativeUrl}`;
+    const $titleLink = $el.find("p.manga-list-4-item-title > a");
+    const title = $titleLink.attr("title")?.trim() || "";
+    const relativeUrl = $titleLink.attr("href") || "";
+    const url = relativeUrl.startsWith("http")
+      ? relativeUrl
+      : `${baseUrl}${relativeUrl}`;
 
-        const coverUrl = $el.find('a > img.manga-list-4-cover').attr('src') || '';
+    const coverUrl = $el.find("a > img.manga-list-4-cover").attr("src") || "";
 
-        const authors: string[] = [];
-        $el.find('p.manga-list-4-item-tip').each((_, tip) => {
-            const text = $(tip).text().trim();
-            if (text.startsWith('Author:')) {
-                $(tip).find('a.blue').each((_, a) => {
-                    const authorName = $(a).text().trim();
-                    if (authorName) authors.push(authorName);
-                });
-            }
-        });
-
-        const statusText = $el.find('p.manga-list-4-show-tag-list-2 > a').text().toLowerCase();
-        let status: Manga['status'] = undefined;
-        if (statusText.includes('completed')) status = 'completed';
-        else if (statusText.includes('ongoing')) status = 'ongoing';
-        else if (statusText.includes('hiatus')) status = 'hiatus';
-        else if (statusText.includes('cancelled')) status = 'cancelled';
-
-        let description = '';
-        const tipParagraphs = $el.find('p.manga-list-4-item-tip').toArray();
-        for (let i = tipParagraphs.length - 1; i >= 0; i--) {
-            const tipText = $(tipParagraphs[i]).text().trim();
-            if (!tipText.startsWith('Author:') && !tipText.startsWith('Latest Chapter:')) {
-                description = tipText;
-                break;
-            }
-        }
-
-        manga.push({
-            sourceId: 'mangahere',
-            title,
-            url,
-            coverUrl,
-            author: authors,
-            artist: [],
-            status,
-            description,
-        });
+    const authors: string[] = [];
+    $el.find("p.manga-list-4-item-tip").each((_, tip) => {
+      const text = $(tip).text().trim();
+      if (text.startsWith("Author:")) {
+        $(tip)
+          .find("a.blue")
+          .each((_, a) => {
+            const authorName = $(a).text().trim();
+            if (authorName) authors.push(authorName);
+          });
+      }
     });
 
-    return manga;
+    const statusText = $el
+      .find("p.manga-list-4-show-tag-list-2 > a")
+      .text()
+      .toLowerCase();
+    let status: Manga["status"] = undefined;
+    if (statusText.includes("completed")) status = "completed";
+    else if (statusText.includes("ongoing")) status = "ongoing";
+    else if (statusText.includes("hiatus")) status = "hiatus";
+    else if (statusText.includes("cancelled")) status = "cancelled";
+
+    let description = "";
+    const tipParagraphs = $el.find("p.manga-list-4-item-tip").toArray();
+    for (let i = tipParagraphs.length - 1; i >= 0; i--) {
+      const tipText = $(tipParagraphs[i]).text().trim();
+      if (
+        !tipText.startsWith("Author:") &&
+        !tipText.startsWith("Latest Chapter:")
+      ) {
+        description = tipText;
+        break;
+      }
+    }
+
+    manga.push({
+      sourceId: "mangahere",
+      title,
+      url,
+      coverUrl,
+      author: authors,
+      artist: [],
+      status,
+      description,
+    });
+  });
+
+  return manga;
 }
 
 function parseChapters($: cheerio.CheerioAPI): Chapter[] {
-    const container = $('#chapterlist');
-    let links: Element[] = [];
+  const container = $("#chapterlist");
+  let links: Element[] = [];
 
-    if (container.find('#list-2 ul.detail-main-list').length) {
-        links = container.find('#list-2 ul.detail-main-list li a').toArray();
-    } else if (container.find('#list-1 ul.detail-main-list').length) {
-        links = container.find('#list-1 ul.detail-main-list li a').toArray();
-    } else {
-        links = container.find('.detail-main-list ul li a').toArray();
-    }
-    return links.flatMap((el) => {
-        const $el = $(el);
-        const href = $el.attr('href');
-        if (!href) return [];
+  if (container.find("#list-2 ul.detail-main-list").length) {
+    links = container.find("#list-2 ul.detail-main-list li a").toArray();
+  } else if (container.find("#list-1 ul.detail-main-list").length) {
+    links = container.find("#list-1 ul.detail-main-list li a").toArray();
+  } else {
+    links = container.find(".detail-main-list ul li a").toArray();
+  }
+  return links.flatMap((el) => {
+    const $el = $(el);
+    const href = $el.attr("href");
+    if (!href) return [];
 
-        const chapterId = href.split('/').pop() || '';
-        const title = $el.find('.title3').text().trim();
-        const date = $el.find('.title2').text().trim();
+    const chapterId = href.split("/").pop() || "";
+    const title = $el.find(".title3").text().trim();
+    const date = $el.find(".title2").text().trim();
 
-        const match = title.match(/Ch\.(\d+(\.\d+)?)/i) || title.match(/c(\d+(\.\d+)?)/i);
-        const number = match ? match[1] : undefined;
-        if (number === undefined) return [];
+    const match =
+      title.match(/Ch\.(\d+(\.\d+)?)/i) || title.match(/c(\d+(\.\d+)?)/i);
+    const number = match ? match[1] : undefined;
+    if (number === undefined) return [];
 
-        return [{
-            id: chapterId,
-            sourceId: 'mangahere',
-            chapterNumber: number,
-            url: baseUrl + href,
-            date,
-        } satisfies Chapter];
-    });
+    return [
+      {
+        id: chapterId,
+        sourceId: "mangahere",
+        chapterNumber: number,
+        url: baseUrl + href,
+        date,
+      } satisfies Chapter,
+    ];
+  });
 }
 
 async function fetchManga(ctx: SearchContext): Promise<SourceMangaOutput> {
-    const url = `${baseUrl}/search`;
-    const response = await ctx.proxiedFetcher(url, {
-        query: {
-            title: encodeURIComponent(ctx.titleInput).replace(/%20/g, '+')
-        }
-    });
-    const $ = cheerio.load(response);
-    const manga = parseManga($);
-    return manga;
+  const url = `${baseUrl}/search`;
+  const response = await ctx.proxiedFetcher(url, {
+    query: {
+      title: encodeURIComponent(ctx.titleInput).replace(/%20/g, "+"),
+    },
+  });
+  const $ = cheerio.load(response);
+  const manga = parseManga($);
+  return manga;
 }
 
 async function fetchChapters(ctx: MangaContext): Promise<SourceChaptersOutput> {
-    const response = await ctx.proxiedFetcher(ctx.manga.url);
-    const $ = cheerio.load(response);
-    const chapters = parseChapters($);
-    return chapters;
+  const response = await ctx.proxiedFetcher(ctx.manga.url);
+  const $ = cheerio.load(response);
+  const chapters = parseChapters($);
+  return chapters;
 }
 
 async function fetchPages(ctx: ChapterContext): Promise<SourcePagesOutput> {
-    const response = await ctx.proxiedFetcher(ctx.chapter.url);
-    const $ = cheerio.load(response);
-    const scripts = $('script')
-        .toArray()
-        .filter(s => !$(s).attr('src'))
-        .map(s => $(s).html() || '');
-    //different order from fanfox
-    const chapterid = extractVarFromScript(scripts[6], 'chapterid');
-    const totalPages = extractVarFromScript(scripts[6], 'imagecount');
-    const dm5_key = extractDm5KeyFromPacked(scripts[8]);
+  const response = await ctx.proxiedFetcher(ctx.chapter.url);
+  const $ = cheerio.load(response);
+  const scripts = $("script")
+    .toArray()
+    .filter((s) => !$(s).attr("src"))
+    .map((s) => $(s).html() || "");
+  //different order from fanfox
+  const chapterid = extractVarFromScript(scripts[6], "chapterid");
+  const totalPages = extractVarFromScript(scripts[6], "imagecount");
+  const dm5_key = extractDm5KeyFromPacked(scripts[8]);
 
-    if (!chapterid || !dm5_key || !totalPages) {
-        throw new Error('[Mangahere] Missing required variables');
-    }
+  if (!chapterid || !dm5_key || !totalPages) {
+    throw new Error("[Mangahere] Missing required variables");
+  }
 
-    const fetchChapterPages = chapterFun(ctx, chapterid, totalPages, dm5_key);
+  const fetchChapterPages = chapterFun(ctx, chapterid, totalPages, dm5_key);
 
-    const uniqueUrls = await fetchChapterPages();
+  const uniqueUrls = await fetchChapterPages();
 
-    return uniqueUrls.map((url, idx) => {
-        const normalizedUrl = /^https?:\/\//i.test(url) ? url : `https:${url}`;
+  return uniqueUrls.map((url, idx) => {
+    const normalizedUrl = /^https?:\/\//i.test(url) ? url : `https:${url}`;
 
-        return {
-            id: idx,
-            url: normalizedUrl,
-        };
-    }) as Page[];
-
+    return {
+      id: idx,
+      url: normalizedUrl,
+    };
+  }) as Page[];
 }
 
 export const mangaHereScraper: Source = {
-    id: 'mangahere',
-    name: 'MangaHere',
-    url: baseUrl,
-    rank: 17,
-    flags: [flags.NEEDS_REFERER_HEADER],
-    scrapeManga: fetchManga,
-    scrapeChapters: fetchChapters,
-    scrapePages: fetchPages
+  id: "mangahere",
+  name: "MangaHere",
+  url: baseUrl,
+  rank: 17,
+  flags: [flags.NEEDS_REFERER_HEADER],
+  scrapeManga: fetchManga,
+  scrapeChapters: fetchChapters,
+  scrapePages: fetchPages,
 };

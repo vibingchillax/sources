@@ -39,7 +39,6 @@ export function unpack(source: string) {
   source = payload.replace(/\b\w+\b/g, lookup);
   return _replacestrings(source);
 
-
   function _filterargs(source: string) {
     /* Juice from a source file the four args needed by decoder. */
     const juicers = [
@@ -81,14 +80,12 @@ export function unpack(source: string) {
   }
 }
 
-
 class Unbaser {
   /* Functor for a given base. Will efficiently convert
     strings to natural numbers. */
   protected ALPHABET: Record<number, string> = {
     62: "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",
-    95:
-      "' !\"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~'",
+    95: "' !\"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~'",
   };
   protected base: number;
   protected dictionary: Record<string, number> = {};
@@ -98,8 +95,8 @@ class Unbaser {
 
     // fill elements 37...61, if necessary
     if (36 < base && base < 62) {
-      this.ALPHABET[base] = this.ALPHABET[base] ||
-        this.ALPHABET[62].substr(0, base);
+      this.ALPHABET[base] =
+        this.ALPHABET[base] || this.ALPHABET[62].substr(0, base);
     }
     // If base can be handled by int() builtin, let it do it for us
     if (2 <= base && base <= 36) {
@@ -123,7 +120,7 @@ class Unbaser {
     /* Decodes a value to an integer. */
     let ret = 0;
     [...value].reverse().forEach((cipher, index) => {
-      ret = ret + ((this.base ** index) * this.dictionary[cipher]);
+      ret = ret + this.base ** index * this.dictionary[cipher];
     });
     return ret;
   }

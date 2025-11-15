@@ -1,92 +1,94 @@
-import * as cheerio from 'cheerio';
-import type { Chapter, Page } from '@/utils/types';
-import type { MangaContext, ChapterContext } from '@/utils/context';
-import type { SourceChaptersOutput, SourcePagesOutput } from '../base';
-import type { Source } from '@/sources/base';
-import { flags } from '@/entrypoint/targets';
-import { toKebabCase } from '@/utils/tocase';
+import * as cheerio from "cheerio";
+import type { Chapter, Page } from "@/utils/types";
+import type { MangaContext, ChapterContext } from "@/utils/context";
+import type { SourceChaptersOutput, SourcePagesOutput } from "../base";
+import type { Source } from "@/sources/base";
+import { flags } from "@/entrypoint/targets";
+import { toKebabCase } from "@/utils/tocase";
 
 const baseUrl = "https://manganato.io";
 
 async function fetchChapters(ctx: MangaContext): Promise<SourceChaptersOutput> {
-    const url = `${baseUrl}/manga/${toKebabCase(ctx.manga.title)}`;
-    const response = await ctx.proxiedFetcher(url, { useBrowser: true });
-    const $ = cheerio.load(response);
+  const url = `${baseUrl}/manga/${toKebabCase(ctx.manga.title)}`;
+  const response = await ctx.proxiedFetcher(url, { useBrowser: true });
+  const $ = cheerio.load(response);
 
-    const chapters = getChapters($);
-    return chapters;
+  const chapters = getChapters($);
+  return chapters;
 }
 
 function getChapters($: cheerio.CheerioAPI): Chapter[] {
-    // Select all chapter <li> items in the chapter list
-    const chapterItems = $('li.wp-manga-chapter ').toArray();
+  // Select all chapter <li> items in the chapter list
+  const chapterItems = $("li.wp-manga-chapter ").toArray();
 
-    return chapterItems.map((li) => {
-        const $li = $(li);
-        const $a = $li.find('a');
-        const url = $a.attr('href') || '';
+  return chapterItems
+    .map((li) => {
+      const $li = $(li);
+      const $a = $li.find("a");
+      const url = $a.attr("href") || "";
 
-        // Chapter title e.g. "Chapter 81"
-        const titleText = $a.text().trim();
+      // Chapter title e.g. "Chapter 81"
+      const titleText = $a.text().trim();
 
-        // Extract chapter number from titleText
-        const match = titleText.match(/chapter\s*(\d+(\.\d+)?)/i);
-        const chapterNumber = match ? match[1] : undefined;
+      // Extract chapter number from titleText
+      const match = titleText.match(/chapter\s*(\d+(\.\d+)?)/i);
+      const chapterNumber = match ? match[1] : undefined;
 
-        // Get release date text
-        const date = $li.find('.chapter-release-date i').text().trim();
+      // Get release date text
+      const date = $li.find(".chapter-release-date i").text().trim();
 
-        if (!url || chapterNumber === undefined) return null;
+      if (!url || chapterNumber === undefined) return null;
 
-        // Extract chapter id from URL (last segment)
-        const parts = url.split('/').filter(Boolean);
-        const chapterIdStr = parts[parts.length - 1];
-        const chapterId = chapterIdStr.replace(/[^\d]/g, '');
+      // Extract chapter id from URL (last segment)
+      const parts = url.split("/").filter(Boolean);
+      const chapterIdStr = parts[parts.length - 1];
+      const chapterId = chapterIdStr.replace(/[^\d]/g, "");
 
-        return {
-            id: chapterId,
-            sourceId: 'manganato',
-            chapterNumber,
-            url,
-            date
-        } satisfies Chapter;
-    }).filter(Boolean) as Chapter[];
+      return {
+        id: chapterId,
+        sourceId: "manganato",
+        chapterNumber,
+        url,
+        date,
+      } satisfies Chapter;
+    })
+    .filter(Boolean) as Chapter[];
 }
 
 async function fetchPages(ctx: ChapterContext): Promise<SourcePagesOutput> {
-    const response = await ctx.proxiedFetcher(ctx.chapter.url);
-    const $ = cheerio.load(response);
+  const response = await ctx.proxiedFetcher(ctx.chapter.url);
+  const $ = cheerio.load(response);
 
-    const pages: Page[] = [];
+  const pages: Page[] = [];
 
-    $('img.wp-manga-chapter-img').each((_, img) => {
-        const $img = $(img);
-        const src = $img.attr('src')?.trim() || '';
-        if (!src) return;
+  $("img.wp-manga-chapter-img").each((_, img) => {
+    const $img = $(img);
+    const src = $img.attr("src")?.trim() || "";
+    if (!src) return;
 
-        // Extract page number from id, fallback to index if missing
-        const id = $img.attr('id') || '';
-        const match = id.match(/image-(\d+)/);
-        const pageNumber = match ? parseInt(match[1], 10) : pages.length;
+    // Extract page number from id, fallback to index if missing
+    const id = $img.attr("id") || "";
+    const match = id.match(/image-(\d+)/);
+    const pageNumber = match ? parseInt(match[1], 10) : pages.length;
 
-        pages.push({
-            id: pageNumber,
-            url: src,
-        });
+    pages.push({
+      id: pageNumber,
+      url: src,
     });
+  });
 
-    // Sort pages by id ascending to ensure correct order
-    pages.sort((a, b) => a.id - b.id);
+  // Sort pages by id ascending to ensure correct order
+  pages.sort((a, b) => a.id - b.id);
 
-    return pages;
+  return pages;
 }
 export const manganatoScraper: Source = {
-    id: 'manganato',
-    name: 'Manganato',
-    url: baseUrl,
-    rank: 2,
-    flags: [flags.DYNAMIC_RENDER, flags.CORS_ALLOWED],
-    disabled: true,
-    scrapeChapters: fetchChapters,
-    scrapePages: fetchPages
+  id: "manganato",
+  name: "Manganato",
+  url: baseUrl,
+  rank: 2,
+  flags: [flags.DYNAMIC_RENDER, flags.CORS_ALLOWED],
+  disabled: true,
+  scrapeChapters: fetchChapters,
+  scrapePages: fetchPages,
 };

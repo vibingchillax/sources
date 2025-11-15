@@ -1,13 +1,13 @@
-import * as FormData from 'form-data';
+import * as FormData from "form-data";
 
 export type FetcherOptions = {
   baseUrl?: string;
   headers?: Record<string, string>;
   query?: Record<string, string>;
-  method?: 'HEAD' | 'GET' | 'POST';
+  method?: "HEAD" | "GET" | "POST";
   readHeaders?: string[];
   body?: Record<string, any> | string | FormData | URLSearchParams;
-  credentials?: 'include' | 'same-origin' | 'omit';
+  credentials?: "include" | "same-origin" | "omit";
   useBrowser?: true | false;
 };
 
@@ -19,8 +19,8 @@ export type DefaultedFetcherOptions = {
   headers: Record<string, string>;
   query: Record<string, string>;
   readHeaders: string[];
-  method: 'HEAD' | 'GET' | 'POST';
-  credentials?: 'include' | 'same-origin' | 'omit';
+  method: "HEAD" | "GET" | "POST";
+  credentials?: "include" | "same-origin" | "omit";
   useBrowser?: true | false;
 };
 
@@ -33,11 +33,17 @@ export type FetcherResponse<T = any> = {
 
 // This is the version that will be inputted by library users
 export type Fetcher = {
-  <T = any>(url: string, ops: DefaultedFetcherOptions): Promise<FetcherResponse<T>>;
+  <T = any>(
+    url: string,
+    ops: DefaultedFetcherOptions,
+  ): Promise<FetcherResponse<T>>;
 };
 
 // This is the version that scrapers will be interacting with
 export type UseableFetcher = {
   <T = any>(url: string, ops?: FetcherOptions): Promise<T>;
-  full: <T = any>(url: string, ops?: FetcherOptions) => Promise<FetcherResponse<T>>;
+  full: <T = any>(
+    url: string,
+    ops?: FetcherOptions,
+  ) => Promise<FetcherResponse<T>>;
 };

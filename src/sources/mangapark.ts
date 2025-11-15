@@ -1,9 +1,17 @@
-import * as cheerio from 'cheerio';
-import type { Chapter, Page } from '@/utils/types';
-import type { MangaContext, ChapterContext, SearchContext } from '@/utils/context';
-import type { SourceChaptersOutput, SourceMangaOutput, SourcePagesOutput } from './base';
-import type { Source } from '@/sources/base';
-import { flags } from '@/entrypoint/targets';
+import * as cheerio from "cheerio";
+import type { Chapter, Page } from "@/utils/types";
+import type {
+  MangaContext,
+  ChapterContext,
+  SearchContext,
+} from "@/utils/context";
+import type {
+  SourceChaptersOutput,
+  SourceMangaOutput,
+  SourcePagesOutput,
+} from "./base";
+import type { Source } from "@/sources/base";
+import { flags } from "@/entrypoint/targets";
 
 const baseUrl = "https://mangapark.net";
 // mirrors:
@@ -23,149 +31,158 @@ const baseUrl = "https://mangapark.net";
 // https://mpark.to
 
 async function fetchManga(ctx: SearchContext): Promise<SourceMangaOutput> {
-    const searchHtml = await ctx.proxiedFetcher(`${baseUrl}/search`, {
-        query: {
-            word: ctx.titleInput
-        }
-    });
-    const $ = cheerio.load(searchHtml);
+  const searchHtml = await ctx.proxiedFetcher(`${baseUrl}/search`, {
+    query: {
+      word: ctx.titleInput,
+    },
+  });
+  const $ = cheerio.load(searchHtml);
 
-    const resultsContainer = $('div.grid.gap-5.grid-cols-1.border-t.border-t-base-200.pt-5');
+  const resultsContainer = $(
+    "div.grid.gap-5.grid-cols-1.border-t.border-t-base-200.pt-5",
+  );
 
-    const mangaDivs = resultsContainer.find('div.flex.border-b.border-b-base-200.pb-5');
+  const mangaDivs = resultsContainer.find(
+    "div.flex.border-b.border-b-base-200.pb-5",
+  );
 
-    const manga = mangaDivs.map((_, div) => {
-        const el = $(div);
+  const manga = mangaDivs
+    .map((_, div) => {
+      const el = $(div);
 
-        const relativeUrl = el.find('a').first().attr('href');
-        if (!relativeUrl) return null;
-        const url = new URL(relativeUrl, baseUrl).href;
+      const relativeUrl = el.find("a").first().attr("href");
+      if (!relativeUrl) return null;
+      const url = new URL(relativeUrl, baseUrl).href;
 
-        const title = el.find('h3 a').text().trim();
+      const title = el.find("h3 a").text().trim();
 
-        const coverRelative = el.find('a img').first().attr('src');
-        const coverUrl = coverRelative ? new URL(coverRelative, baseUrl).href : undefined;
+      const coverRelative = el.find("a img").first().attr("src");
+      const coverUrl = coverRelative
+        ? new URL(coverRelative, baseUrl).href
+        : undefined;
 
-        // const ratingText = el.find('span.text-yellow-500').first().text().trim();
-        // const rating = ratingText ? parseFloat(ratingText) : undefined;
+      // const ratingText = el.find('span.text-yellow-500').first().text().trim();
+      // const rating = ratingText ? parseFloat(ratingText) : undefined;
 
-        // const author = el.find('div.text-xs.opacity-80.line-clamp-2').text().trim() || undefined;
+      // const author = el.find('div.text-xs.opacity-80.line-clamp-2').text().trim() || undefined;
 
-        return {
-            id: url,
-            sourceId: 'mangapark',
-            url,
-            title,
-            coverUrl,
-            // author,
-        };
-    }).get().filter(Boolean); // Remove nulls
+      return {
+        id: url,
+        sourceId: "mangapark",
+        url,
+        title,
+        coverUrl,
+        // author,
+      };
+    })
+    .get()
+    .filter(Boolean); // Remove nulls
 
-    return manga;
+  return manga;
 }
 
 async function fetchChapters(ctx: MangaContext): Promise<SourceChaptersOutput> {
-    const mangaHtml = await ctx.proxiedFetcher(ctx.manga.url);
-    const $ = cheerio.load(mangaHtml);
+  const mangaHtml = await ctx.proxiedFetcher(ctx.manga.url);
+  const $ = cheerio.load(mangaHtml);
 
-    const chapters: Chapter[] = [];
+  const chapters: Chapter[] = [];
 
-    // naming/numbering is too inconsistent on the site, just have to live with it
-    $('a.link-hover.link-primary').each((i, el) => {
-        const href = $(el).attr('href')?.trim();
-        const title = $(el).text().trim();
+  // naming/numbering is too inconsistent on the site, just have to live with it
+  $("a.link-hover.link-primary").each((i, el) => {
+    const href = $(el).attr("href")?.trim();
+    const title = $(el).text().trim();
 
-        if (!href || !title || !href.includes("title") || title.includes("Start Reading")) return;
+    if (
+      !href ||
+      !title ||
+      !href.includes("title") ||
+      title.includes("Start Reading")
+    )
+      return;
 
-        const normalized = title.replace(/\s+/g, ' ').trim();
+    const normalized = title.replace(/\s+/g, " ").trim();
 
-        let chapterNumber: string | undefined = undefined;
+    let chapterNumber: string | undefined = undefined;
 
-        const patterns = [
-            /Chapter\s+(\d+\.\d+|\d+-\d+|\d+)/i,
-            /Ch\.(\d+\.\d+|\d+-\d+|\d+)/i,
-            /Punch\s+(\d+\.\d+|\d+-\d+|\d+)/i,
-            /Vol\.\d+\s+Ch\.(\d+\.\d+|\d+-\d+|\d+)/i,
-            /Volume\s+\d+\s+Chapter\s+(\d+\.\d+|\d+-\d+|\d+)/i,
-            /Ch(?:apter)?\s*(\d+\.\d+|\d+-\d+|\d+)/i,
-            /Ch\.(\d+)/i,
-            /(\d+\.\d+|\d+)/
-        ];
+    const patterns = [
+      /Chapter\s+(\d+\.\d+|\d+-\d+|\d+)/i,
+      /Ch\.(\d+\.\d+|\d+-\d+|\d+)/i,
+      /Punch\s+(\d+\.\d+|\d+-\d+|\d+)/i,
+      /Vol\.\d+\s+Ch\.(\d+\.\d+|\d+-\d+|\d+)/i,
+      /Volume\s+\d+\s+Chapter\s+(\d+\.\d+|\d+-\d+|\d+)/i,
+      /Ch(?:apter)?\s*(\d+\.\d+|\d+-\d+|\d+)/i,
+      /Ch\.(\d+)/i,
+      /(\d+\.\d+|\d+)/,
+    ];
 
-        for (const pattern of patterns) {
-            const match = normalized.match(pattern);
-            if (match) {
-                const raw = match[1].replace('-', '.');
-                chapterNumber = raw;
-                break;
-            }
-        }
+    for (const pattern of patterns) {
+      const match = normalized.match(pattern);
+      if (match) {
+        const raw = match[1].replace("-", ".");
+        chapterNumber = raw;
+        break;
+      }
+    }
 
-        chapters.push({
-            id: chapterNumber ?? 'l' + String(i),
-            sourceId: 'mangapark',
-            title,
-            chapterNumber: chapterNumber ?? String(i),
-            url: href.startsWith('http') ? href : `${baseUrl}${href}`,
-        });
+    chapters.push({
+      id: chapterNumber ?? "l" + String(i),
+      sourceId: "mangapark",
+      title,
+      chapterNumber: chapterNumber ?? String(i),
+      url: href.startsWith("http") ? href : `${baseUrl}${href}`,
     });
+  });
 
-    return chapters;
+  return chapters;
 }
-
 
 async function fetchPages(ctx: ChapterContext): Promise<SourcePagesOutput> {
-    const response = await ctx.proxiedFetcher(ctx.chapter.url);
-    const $ = cheerio.load(response);
+  const response = await ctx.proxiedFetcher(ctx.chapter.url);
+  const $ = cheerio.load(response);
 
-    const id = ctx.chapter.url
-        .replace(/\/$/, '')
-        .split('/')
-        .pop()!
-        .split('-')[0];
+  const id = ctx.chapter.url.replace(/\/$/, "").split("/").pop()!.split("-")[0];
 
-    const scriptTag = $(`script:contains("${id}")`).first();
-    if (!scriptTag.length) {
-        return [];
+  const scriptTag = $(`script:contains("${id}")`).first();
+  if (!scriptTag.length) {
+    return [];
+  }
+
+  let scriptData = scriptTag.text();
+
+  if (scriptData.includes('"comic-')) {
+    scriptData = scriptData.substring(scriptData.lastIndexOf('"comic-'));
+  } else {
+    scriptData = scriptData.substring(scriptData.lastIndexOf('"manga-'));
+  }
+
+  const urlRegex = /"(https?:.+?)"/g;
+  const pages: Page[] = [];
+
+  let match: RegExpExecArray | null;
+  let index = 0;
+
+  while ((match = urlRegex.exec(scriptData)) !== null) {
+    const url = match[1];
+    if (!url) continue;
+
+    if (/\.(jpe?g|jfif|pjpeg|pjp|png|webp|avif|gif)$/i.test(url)) {
+      pages.push({
+        id: index++,
+        url,
+      });
     }
+  }
 
-    let scriptData = scriptTag.text();
-
-    if (scriptData.includes('"comic-')) {
-        scriptData = scriptData.substring(scriptData.lastIndexOf('"comic-'));
-    } else {
-        scriptData = scriptData.substring(scriptData.lastIndexOf('"manga-'));
-    }
-
-    const urlRegex = /"(https?:.+?)"/g;
-    const pages: Page[] = [];
-
-    let match: RegExpExecArray | null;
-    let index = 0;
-
-    while ((match = urlRegex.exec(scriptData)) !== null) {
-        const url = match[1];
-        if (!url) continue;
-
-        if (/\.(jpe?g|jfif|pjpeg|pjp|png|webp|avif|gif)$/i.test(url)) {
-            pages.push({
-                id: index++,
-                url,
-            });
-        }
-    }
-
-    return pages;
+  return pages;
 }
 
-
 export const mangaparkScraper: Source = {
-    id: 'mangapark',
-    name: 'MangaPark',
-    url: baseUrl,
-    rank: 13,
-    flags: [flags.NEEDS_REFERER_HEADER],
-    scrapeManga: fetchManga,
-    scrapeChapters: fetchChapters,
-    scrapePages: fetchPages
+  id: "mangapark",
+  name: "MangaPark",
+  url: baseUrl,
+  rank: 13,
+  flags: [flags.NEEDS_REFERER_HEADER],
+  scrapeManga: fetchManga,
+  scrapeChapters: fetchChapters,
+  scrapePages: fetchPages,
 };
