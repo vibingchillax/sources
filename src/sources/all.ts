@@ -37,6 +37,7 @@ import { bunMangaScraper } from "./bunmanga";
 import { aquaReaderScraper } from "./aquareader";
 import { mangaBallScraper } from "./mangaball";
 import { nineAnimeScraper } from "./nineanime";
+import { niaddScraper } from "./niadd";
 
 export function gatherAllSources(): Source[] {
     return [
@@ -76,6 +77,7 @@ export function gatherAllSources(): Source[] {
         bunMangaScraper,
         aquaReaderScraper,
         mangaBallScraper,
-        nineAnimeScraper
+        nineAnimeScraper,
+        niaddScraper
     ].sort((a,b) => (a.rank ?? 0) - (b.rank ?? 0));
 }
