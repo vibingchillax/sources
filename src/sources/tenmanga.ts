@@ -51,7 +51,6 @@ async function fetchManga(ctx: SearchContext): Promise<SourceMangaOutput> {
 async function fetchChapters(ctx: MangaContext): Promise<SourceChaptersOutput> {
   const response = await ctx.proxiedFetcher(ctx.manga.url);
   const $ = cheerio.load(response);
-  console.log(response);
 
   const chapters = getChapters($);
   return chapters;
@@ -118,7 +117,7 @@ async function fetchPages(ctx: ChapterContext): Promise<SourcePagesOutput> {
     pageUrls.push(rootUrl);
   }
 
-  const tasks = pageUrls.map((url, index) =>
+  const tasks = Array.from(new Set(pageUrls)).map((url, index) =>
     limit(async () => {
       const html = await ctx.proxiedFetcher(url);
       const $$ = cheerio.load(html);
@@ -141,12 +140,14 @@ async function fetchPages(ctx: ChapterContext): Promise<SourcePagesOutput> {
 
   const results = await Promise.all(tasks);
 
+  let id = 0;
+
   results
     .sort((a, b) => a.index - b.index)
     .forEach(({ pageImages }) => {
       for (const src of pageImages) {
         pages.push({
-          id: pages.length,
+          id: id++,
           url: src,
         });
       }

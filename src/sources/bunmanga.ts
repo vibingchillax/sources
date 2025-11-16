@@ -59,8 +59,6 @@ function getChapters($: cheerio.CheerioAPI): Chapter[] {
   // Select all chapter <li> items in the chapter list
   const chapterItems = $(".wp-manga-chapter").toArray();
 
-  console.log(chapterItems);
-
   return chapterItems
     .map((li) => {
       const $li = $(li);

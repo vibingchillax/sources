@@ -53,7 +53,6 @@ async function fetchManga(ctx: SearchContext): Promise<SourceMangaOutput> {
 async function fetchChapters(ctx: MangaContext): Promise<SourceChaptersOutput> {
   const response = await ctx.proxiedFetcher(ctx.manga.url);
   const $ = cheerio.load(response);
-  console.log(response);
 
   const chapters = getChapters($);
   return chapters;

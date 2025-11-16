@@ -84,7 +84,6 @@ async function fetchManga(ctx: SearchContext): Promise<SourceMangaOutput> {
 async function fetchChapters(ctx: MangaContext): Promise<SourceChaptersOutput> {
   const response = await ctx.proxiedFetcher(ctx.manga.url);
   const $ = cheerio.load(response);
-  console.log(response);
 
   const chapters = getChapters($);
   return chapters;
@@ -127,7 +126,6 @@ function getChapters($: cheerio.CheerioAPI): Chapter[] {
 async function fetchPages(ctx: ChapterContext): Promise<SourcePagesOutput> {
   const rootUrl = ctx.chapter.url;
   const pages: Page[] = [];
-  const visited = new Set<string>();
 
   const response = await ctx.proxiedFetcher(rootUrl);
   const $ = cheerio.load(response);
@@ -146,29 +144,41 @@ async function fetchPages(ctx: ChapterContext): Promise<SourcePagesOutput> {
     pageUrls.push(rootUrl);
   }
 
-  await Promise.all(
-    pageUrls.map((url) =>
-      limit(async () => {
-        if (visited.has(url)) return;
-        visited.add(url);
+  const tasks = Array.from(new Set(pageUrls)).map((url, index) =>
+    limit(async () => {
+      const html = await ctx.proxiedFetcher(url);
+      const $$ = cheerio.load(html);
 
-        const html = await ctx.proxiedFetcher(url);
-        const $$ = cheerio.load(html);
+      const pageImages: string[] = [];
 
-        $$("#viewer .pic_box img.manga_pic").each((_, img) => {
-          let src = $$(img).attr("src")?.trim();
-          if (!src) return;
-          if (src.startsWith("//")) src = "https:" + src;
-          if (src.startsWith("data:image")) return;
+      $$("#viewer .pic_box img.manga_pic").each((_, img) => {
+        let src = $$(img).attr("src")?.trim();
+        if (!src) return;
 
-          pages.push({
-            id: pages.length,
-            url: src,
-          });
-        });
-      }),
-    ),
+        if (src.startsWith("//")) src = "https:" + src;
+        if (src.startsWith("data:image")) return;
+
+        pageImages.push(src);
+      });
+
+      return { index, pageImages };
+    }),
   );
+
+  const results = await Promise.all(tasks);
+
+  let id = 0;
+
+  results
+    .sort((a, b) => a.index - b.index)
+    .forEach(({ pageImages }) => {
+      for (const src of pageImages) {
+        pages.push({
+          id: id++,
+          url: src,
+        });
+      }
+    });
 
   return pages;
 }
