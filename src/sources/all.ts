@@ -43,6 +43,7 @@ import { taaddScraper } from "./taadd";
 import { todayMangaScraper } from "./todaymanga";
 import { demonicScansScraper } from "./mangademon";
 import { mangakakalotScraper } from "./mangakakalot";
+import { mangaMobScraper } from "./mangamob";
 
 export function gatherAllSources(): Source[] {
   return [
@@ -89,5 +90,6 @@ export function gatherAllSources(): Source[] {
     todayMangaScraper,
     demonicScansScraper,
     mangakakalotScraper,
+    mangaMobScraper,
   ].sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0));
 }
