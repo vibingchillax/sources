@@ -17,19 +17,20 @@ const baseUrl = "https://bunmanga.com";
 
 async function fetchManga(ctx: SearchContext): Promise<SourceMangaOutput> {
   const manga: Manga[] = [];
-  const formData = new FormData();
-  formData.append("action", "wp-manga-search-manga");
-  formData.append("title", ctx.titleInput);
+  const body = new URLSearchParams();
+  body.append("action", "wp-manga-search-manga");
+  body.append("title", ctx.titleInput);
 
   const response: WPSearchResponse = await ctx.proxiedFetcher(
     `${baseUrl}/wp-admin/admin-ajax.php`,
     {
-      body: formData,
+      body: body.toString(),
       method: "POST",
       headers: {
-        "X-Origin": baseUrl,
-        "X-Referer": baseUrl + "/",
-      },
+        "Content-Type": "application/x-www-form-urlencoded",
+        origin: baseUrl,
+        referer: `${baseUrl}/?s=${encodeURIComponent(ctx.titleInput).replace(/%20/g, '+')}&post_type=wp-manga`
+      }
     },
   );
   if (!response.success)
